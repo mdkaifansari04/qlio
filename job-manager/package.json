@@ -1,0 +1,27 @@
+{
+  "name": "job-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc -b && node dist/index.js",
+    "dev": "nodemon",
+    "build": "tsc -b"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.3",
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0",
+    "prisma": "^6.11.1",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.11.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "tsc-node": "^0.0.3"
+  }
+}
