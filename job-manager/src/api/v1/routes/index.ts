@@ -5,6 +5,6 @@ import verifyUser from "@src/middleware/verify-user";
 const router = Router();
 
 router.use("/users", userRouter);
-router.use("/jobs", verifyUser, jobRouter);
+router.use("/jobs", jobRouter);
 
 export default router;
