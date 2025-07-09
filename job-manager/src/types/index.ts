@@ -8,6 +8,11 @@ export type JOB_STREAM_LINE_TYPE = "stdout" | "stderr";
 
 export interface IStreamType {
   jobId: string;
-  line: string;
+  output: {
+    response: string;
+    timestamp: string;
+    success: boolean;
+  };
   type: JOB_STREAM_LINE_TYPE;
+  timestamp: Date;
 }

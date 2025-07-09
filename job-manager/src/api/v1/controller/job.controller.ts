@@ -9,9 +9,15 @@ export const createJob = async (
   next: NextFunction,
 ) => {
   try {
-    const { command } = req.value;
+    const { command, timeout, priority, params } = req.value;
     const job = await client.jobs.create({
-      data: { command: command as string, userId: req.userId },
+      data: {
+        command: command as string,
+        userId: req.userId,
+        timeout,
+        priority,
+        params,
+      },
     });
 
     res.status(201).json({

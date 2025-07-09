@@ -4,13 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsc -b && node dist/index.js",
+    "dev": "nodemon",
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.12.3",
   "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "dotenv": "^17.1.0",
+    "ioredis": "^5.6.1",
+    "prisma": "^6.11.1",
+    "socket.io-client": "^4.8.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.12",
+    "nodemon": "^3.1.10"
   }
 }

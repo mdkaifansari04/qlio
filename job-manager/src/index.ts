@@ -6,6 +6,7 @@ import { Server, Socket } from "socket.io";
 import { createServer } from "http";
 import { clientSocket } from "./libs/socket";
 import registerJobSocket from "./sockets/job.socket";
+import { startSpawn } from "./demo";
 
 config();
 
@@ -16,6 +17,8 @@ const io = new Server(server);
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
+
+app.post("/demo-spawn", startSpawn);
 
 app.get("/health", async (req, res) => {
   try {

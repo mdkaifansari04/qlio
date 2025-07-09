@@ -19,15 +19,21 @@ const registerJobSocket = (io: Server) => {
       console.log(`Client unsubscribed from job ${jobId}`);
     });
 
-    socket.on("job:stream", ({ jobId, line, type }: IStreamType) => {
-      const userSocket = clientSocket[jobId];
+    socket.on(
+      "job:stream",
+      ({ jobId, output, type, timestamp }: IStreamType) => {
+        console.log("received the job stream : ", jobId);
 
-      if (userSocket && userSocket.connected) {
-        userSocket.emit("job:update", { jobId, line, type });
-      } else {
-        console.log("User is not connected");
-      }
-    });
+        const userSocket = clientSocket[jobId];
+
+        if (userSocket && userSocket.connected) {
+          userSocket.emit("job:update", { jobId, output, type, timestamp });
+          console.log("emited the response to the user", output.response);
+        } else {
+          console.log("User is not connected");
+        }
+      },
+    );
 
     socket.on("disconnect", () => {
       Object.entries(clientSocket).forEach(([jobId, s]) => {

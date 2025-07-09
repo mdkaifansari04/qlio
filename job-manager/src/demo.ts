@@ -1,8 +1,14 @@
 import { spawn } from "child_process";
+import { NextFunction, Response } from "express";
+import { CustomRequest } from "./types";
 
-export const startSpawn = async (script: string) => {
+export const startSpawn = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const process = spawn(`${script}`);
+    const process = spawn(`${req.body.script}`, { shell: true });
     process.stdout.on("data", (data) => {
       const dateTime = new Date().toUTCString();
       const output = data.toString().trim();
