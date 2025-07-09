@@ -1,10 +1,25 @@
 import { CustomRequest } from "@src/types";
 import client from "@src/config/db";
+import { NextFunction, Response } from "express";
+import ErrorResponse from "@src/middleware/error-response";
 
-const createJob = async (req: CustomRequest, res: Response) => {
-  const { command, description } = req.value;
-  // const job = await clien tert.jobs.create({ data: {command} });
-  // res.status(201).json(job);
+export const createJob = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { command } = req.value;
+    const job = await client.jobs.create({
+      data: { command: command as string, userId: req.userId },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Job created successfully",
+      data: job,
+    });
+  } catch (error) {
+    next(new ErrorResponse(`Internal server error : ${error}`, 500));
+  }
 };
-
-export default { createJob };

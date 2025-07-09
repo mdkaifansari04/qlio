@@ -2,9 +2,17 @@ import express from "express";
 import router from "./api/v1/routes";
 import { config } from "dotenv";
 import prisma from "./config/db";
+import { Server, Socket } from "socket.io";
+import { createServer } from "http";
+import { clientSocket } from "./libs/socket";
+import registerJobSocket from "./sockets/job.socket";
+
 config();
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server);
+
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
@@ -15,7 +23,6 @@ app.get("/health", async (req, res) => {
     const isDbHealthy = dbStatus === "pong" || dbStatus;
 
     const uptime = process.uptime();
-    const memoryUsage = process.memoryUsage();
 
     // const allSystemsOperational = isDbHealthy && queueStatus;
     const allSystemsOperational = isDbHealthy;
@@ -24,11 +31,6 @@ app.get("/health", async (req, res) => {
       success: allSystemsOperational,
       message: allSystemsOperational ? "STATUS: OK" : "STATUS: DEGRADED",
       uptime: `${Math.floor(uptime)}s`,
-      memory: {
-        rss: memoryUsage.rss,
-        heapUsed: memoryUsage.heapUsed,
-        heapTotal: memoryUsage.heapTotal,
-      },
       dependencies: {
         database: isDbHealthy ? "up" : "down",
         // queue: queueStatus ? "up" : "down",
@@ -47,6 +49,8 @@ app.get("/health", async (req, res) => {
 
 app.use("/api/v1", router);
 
-app.listen(PORT, () => {
+registerJobSocket(io);
+
+server.listen(PORT, () => {
   console.log(`Server is running on : http://localhost:${PORT}`);
 });
