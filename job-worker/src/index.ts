@@ -1,5 +1,6 @@
 import { config } from "dotenv";
-import { consume } from "./queue/queue-consumer";
+import { startJobQueueLoop } from "./worker/job-queue-loop";
+import { pushPendingJobToRetry, startRetryLoop } from "./worker/retry-loop";
 config();
 
 process.on("uncaughtException", (err) => {
@@ -10,4 +11,12 @@ process.on("unhandledRejection", (err) => {
   console.log("Uncaught Rejection :", err);
 });
 
-consume();
+async function bootstrap() {
+  console.log("[Worker] Booting up...");
+
+  startRetryLoop();
+  startJobQueueLoop();
+  pushPendingJobToRetry();
+}
+
+bootstrap();

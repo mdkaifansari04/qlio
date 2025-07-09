@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Jobs" ADD COLUMN     "retries" INTEGER NOT NULL DEFAULT 0;

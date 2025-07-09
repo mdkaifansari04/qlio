@@ -1,8 +1,8 @@
-import processJobs from "@src/executor/process-job";
+import processJobs from "@src/worker/process-job";
 import redisClient from "@src/libs/redis";
 import { constants } from "@src/utils/constants";
 
-export const consume = async () => {
+export const startJobQueueLoop = async () => {
   while (true) {
     const jobId = await redisClient.rpop(constants.JOB_QUEUE_KEY);
 

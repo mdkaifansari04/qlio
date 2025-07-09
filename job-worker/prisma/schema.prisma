@@ -30,9 +30,9 @@ model Jobs {
   priority  Int
   timeout   Int
   output    Json      @default("[]")
+  retries   Int       @default(0)
   user      User      @relation(fields: [userId], references: [id])
 }
-
 
 enum JobStatus {
   PENDING
