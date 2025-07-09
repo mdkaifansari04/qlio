@@ -14,13 +14,16 @@
   "packageManager": "pnpm@10.12.3",
   "dependencies": {
     "@types/express": "^5.0.3",
+    "dotenv": "^17.1.0",
     "express": "^5.1.0",
+    "joi": "^17.13.3",
     "prisma": "^6.11.1",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@prisma/client": "^6.11.1",
     "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsc-node": "^0.0.3",
     "tsconfig-paths": "^4.2.0"
