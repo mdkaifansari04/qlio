@@ -1,5 +1,6 @@
 import { clientSocket } from "@src/libs/socket";
 import { pushToQueue } from "@src/services/job.service";
+import { IStreamType } from "@src/types";
 import { Server } from "socket.io";
 
 const registerJobSocket = (io: Server) => {
@@ -16,6 +17,16 @@ const registerJobSocket = (io: Server) => {
     socket.on("unsubscribe", (jobId: string) => {
       delete clientSocket[jobId];
       console.log(`Client unsubscribed from job ${jobId}`);
+    });
+
+    socket.on("job:stream", ({ jobId, line, type }: IStreamType) => {
+      const userSocket = clientSocket[jobId];
+
+      if (userSocket && userSocket.connected) {
+        userSocket.emit("job:update", { jobId, line, type });
+      } else {
+        console.log("User is not connected");
+      }
     });
 
     socket.on("disconnect", () => {
