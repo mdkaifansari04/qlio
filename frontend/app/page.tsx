@@ -2,8 +2,7 @@
 
 import { FeatureCard } from "@/components/card/feature-card";
 import CallToAction from "@/components/container/call-to-action";
-import { FeatureSteps } from "@/components/container/feature-section";
-import { HelpCircle, MoveDown, Package, Sparkles } from "lucide-react";
+import { HelpCircle, Package, Sparkles } from "lucide-react";
 
 import BlurFade from "@/components/ui/blur-fade";
 import { Separator } from "@/components/ui/separator";
@@ -16,7 +15,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faqs } from "@/lib/faqs";
-import { features } from "@/lib/features";
 
 export default function Home() {
   return (
