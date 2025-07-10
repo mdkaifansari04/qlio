@@ -35,6 +35,19 @@ const registerJobSocket = (io: Server) => {
       },
     );
 
+    socket.on(
+      "job:done",
+      ({ jobId, exitCode }: { jobId: string; exitCode: number }) => {
+        console.log("job:done", jobId, exitCode);
+        const userSocket = clientSocket[jobId];
+        if (userSocket && userSocket.connected) {
+          userSocket.emit("job:done", { jobId, exitCode });
+          userSocket.disconnect();
+        }
+        delete clientSocket[jobId];
+      },
+    );
+
     socket.on("disconnect", () => {
       Object.entries(clientSocket).forEach(([jobId, s]) => {
         if (s.id == socket.id) {

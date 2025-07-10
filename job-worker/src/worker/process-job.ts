@@ -1,12 +1,12 @@
-import { spawn } from "child_process";
-import prisma from "@src/config/db";
-import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
 import { Prisma } from "@prisma/client";
+import prisma from "@src/config/db";
 import redisClient from "@src/libs/redis";
+import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
 import { constants as C } from "@src/utils/constants";
-import { getBackoffDelay } from "@src/utils/helper";
-import path from "path";
+import { getBackoffDelay, killTimeout, terminateOnRaceCondition } from "@src/utils/helper";
+import { spawn } from "child_process";
 import fs from "fs";
+import path from "path";
 
 const processJob = async (jobId: string) => {
   const job = await prisma.jobs.findFirst({ where: { id: jobId } });
@@ -24,6 +24,11 @@ const processJob = async (jobId: string) => {
   console.log(`🚀 Starting job ${jobId}: ${command}`);
 
   const proc = spawn("bash", [filePath]);
+
+  // Kill timeout and race condition on job timeout
+  killTimeout(proc, jobId, job, workerSocket);
+  terminateOnRaceCondition(proc, jobId, workerSocket);
+
   const startedAt = new Date();
   await prisma.jobs.update({
     where: { id: jobId },
@@ -33,22 +38,7 @@ const processJob = async (jobId: string) => {
     },
   });
 
-  const killTimeout = setTimeout(async () => {
-    if (proc.killed) return;
-    proc.kill("SIGTERM");
-    console.log("❌ Timed out. Killing process.");
-    await prisma.jobs.update({
-      where: { id: jobId },
-      data: {
-        status: "FAILED",
-      },
-    });
-    workerSocket.emit("job:done", {
-      jobId,
-      exitCode: 1,
-    });
-  }, job.timeout);
-
+  // Stream stdout
   proc.stdout.on("data", async (data) => {
     const timestamp = new Date().toISOString();
 
@@ -69,6 +59,7 @@ const processJob = async (jobId: string) => {
     });
   });
 
+  // Stream stderr
   proc.stderr.on("data", async (data) => {
     const timestamp = new Date().toISOString();
     const log = { response: data.toString(), timestamp: timestamp, success: false };
@@ -88,9 +79,10 @@ const processJob = async (jobId: string) => {
     });
   });
 
+  // Job done
   proc.on("close", async (exitCode) => {
     fs.unlink(filePath, () => {});
-    clearTimeout(killTimeout);
+
     if (exitCode !== 0) {
       const job = await prisma.jobs.findUnique({ where: { id: jobId } });
 
@@ -143,7 +135,6 @@ const processJob = async (jobId: string) => {
   });
 
   proc.on("error", (err) => {
-    clearTimeout(killTimeout);
     console.error(`❌ Job ${jobId} process failed:`, err);
     fs.unlink(filePath, () => {});
   });

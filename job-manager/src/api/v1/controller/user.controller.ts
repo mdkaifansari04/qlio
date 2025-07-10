@@ -61,6 +61,7 @@ export const userLogin = async (
     next(new ErrorResponse(`Internal server error : ${error}`, 500));
   }
 };
+
 export const getUser = async (
   req: CustomRequest,
   res: Response,

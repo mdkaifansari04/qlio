@@ -19,10 +19,10 @@ model User {
   name String
   email String
   password String
-  jobs Jobs[]
+  jobs Job[]
 }
 
-model Jobs {
+model Job {
   id         String   @id @default(uuid())
   command    String
   params     String[] // params
