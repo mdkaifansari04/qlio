@@ -1,3 +1,6 @@
+import { cancelProcess } from "@src/libs/running-process";
+import { JobCancelPayload } from "@src/types";
+
 import { io } from "socket.io-client";
 
 export const webSocket = io(process.env.JOB_MANGER_SOCKET_URL!, {
@@ -8,7 +11,12 @@ export const webSocket = io(process.env.JOB_MANGER_SOCKET_URL!, {
 
 webSocket.on("connection", (socket) => {
   console.log("[worker] connected to job-manager");
-  console.log(socket);
+  webSocket.emit("register:worker", { workerId: socket.id });
+});
+
+webSocket.on("job:cancel", async ({ jobId, workerId }: JobCancelPayload) => {
+  await cancelProcess(jobId);
+  webSocket.emit("job:canceled", { jobId, workerId, success: true });
 });
 
 webSocket.on("disconnect", () => {

@@ -1,6 +1,6 @@
 import { ChildProcess } from "child_process";
 import prisma from "@src/config/db";
-import { type Jobs } from "@prisma/client";
+import { type Job } from "@prisma/client";
 import { Socket } from "socket.io-client";
 import { constants as C } from "@src/utils/constants";
 
@@ -16,7 +16,7 @@ export const terminateOnRaceCondition = async (
   setTimeout(async () => {
     if (proc.killed) return;
     console.log(`❌ Race condition detected. Killing process.`);
-    await prisma.jobs.update({
+    await prisma.job.update({
       where: { id: jobId },
       data: { status: "FAILED" },
     });
@@ -28,12 +28,12 @@ export const terminateOnRaceCondition = async (
   }, C.RACE_CONDITION_TIMEOUT); // 10 minutes
 };
 
-export const killTimeout = (proc: ChildProcess, jobId: string, job: Jobs, workerSocket: Socket) => {
+export const killTimeout = (proc: ChildProcess, jobId: string, job: Job, workerSocket: Socket) => {
   setTimeout(async () => {
     if (proc.killed) return;
 
     console.log("❌ Timed out. Killing process.");
-    await prisma.jobs.update({
+    await prisma.job.update({
       where: { id: jobId },
       data: {
         status: "FAILED",

@@ -1,17 +1,19 @@
-import { clientSocket } from "@src/libs/socket";
-import { pushToQueue } from "@src/services/job.service";
-import { IStreamType } from "@src/types";
+import { enqueueJob } from "@src/libs/priority-queue";
+import { clientSocket, workerSocket } from "@src/libs/socket";
+import { IStreamType, JobCancelPayload, SubscribePayload } from "@src/types";
 import { Server } from "socket.io";
 
 const registerJobSocket = (io: Server) => {
   io.on("connection", (socket) => {
     console.log("🟢 User connected:", socket.id);
 
-    socket.on("subscribe", (jobId: string) => {
+    // user socket connection
+    socket.on("subscribe", ({ jobId, priority }: SubscribePayload) => {
       console.log(`Client subscribed to job ${jobId}`);
+      if (!jobId || !priority) return;
       if (clientSocket[jobId]) return;
       clientSocket[jobId] = socket;
-      pushToQueue(jobId, socket);
+      enqueueJob({ jobId, priority });
     });
 
     socket.on("unsubscribe", (jobId: string) => {
@@ -48,12 +50,30 @@ const registerJobSocket = (io: Server) => {
       },
     );
 
+    socket.on("register:worker", ({ workerId }: { workerId: string }) => {
+      workerSocket[workerId] = socket;
+    });
+
+    socket.on("job:cancel", ({ jobId, workerId }: JobCancelPayload) => {
+      workerSocket[workerId].emit("job:cancel", {
+        jobId,
+        workerId: workerSocket[workerId].id,
+      });
+    });
+
     socket.on("disconnect", () => {
       Object.entries(clientSocket).forEach(([jobId, s]) => {
         if (s.id == socket.id) {
           delete clientSocket[jobId];
         }
       });
+
+      Object.entries(workerSocket).forEach(([workerId, s]) => {
+        if (s.id == socket.id) {
+          delete workerSocket[workerId];
+        }
+      });
+
       console.log("🔴 User disconnected :", socket.id);
     });
   });

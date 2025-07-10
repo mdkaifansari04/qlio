@@ -16,22 +16,26 @@ model User {
 }
 
 model Job {
-  id        String    @id
-  command   String
-  params    String[]
-  timeout   Int
-  priority  Int
-  output    Json      @default("[]")
-  status    JobStatus @default(PENDING)
-  exitCode  Int?
-  retries   Int       @default(0)
-  signal    String?
-  startedAt DateTime?
-  endedAt   DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  userId    String
-  User      User      @relation(fields: [userId], references: [id])
+  id          String    @id
+  command     String
+  params      String[]
+  timeout     Int
+  priority    Int
+  output      Json      @default("[]")
+  status      JobStatus @default(PENDING)
+  exitCode    Int?
+  retries     Int       @default(0)
+  signal      String?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  userId      String
+  cpuUsage    Int?
+  duration    Int?
+  memoryUsage Int?
+  workerId    String?
+  User        User      @relation(fields: [userId], references: [id])
 }
 
 enum JobStatus {

@@ -15,7 +15,7 @@ export const startRetryLoop = () => {
 
 export const pushPendingJobToRetry = async () => {
   setInterval(async () => {
-    const job = await prisma.jobs.findMany({ where: { status: "PENDING" } });
+    const job = await prisma.job.findMany({ where: { status: "PENDING" } });
     if (job.length === 0) return;
 
     job.forEach(async (job) => {

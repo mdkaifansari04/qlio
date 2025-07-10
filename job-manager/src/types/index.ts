@@ -16,3 +16,13 @@ export interface IStreamType {
   type: JOB_STREAM_LINE_TYPE;
   timestamp: Date;
 }
+
+export type SubscribePayload = {
+  jobId: string;
+  priority: number;
+};
+
+export type JobCancelPayload = {
+  jobId: string;
+  workerId: string;
+};

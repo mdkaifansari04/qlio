@@ -10,7 +10,7 @@ export const createJob = async (
 ) => {
   try {
     const { command, timeout, priority, params } = req.value;
-    const job = await client.jobs.create({
+    const job = await client.job.create({
       data: {
         command: command as string,
         userId: req.userId,
@@ -24,6 +24,31 @@ export const createJob = async (
       success: true,
       message: "Job created successfully",
       data: job,
+    });
+  } catch (error) {
+    next(new ErrorResponse(`Internal server error : ${error}`, 500));
+  }
+};
+
+export const getJobs = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const jobs = await client.job.findMany({
+      where: {
+        userId: req.userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Jobs fetched successfully",
+      data: jobs,
     });
   } catch (error) {
     next(new ErrorResponse(`Internal server error : ${error}`, 500));
