@@ -11,6 +11,7 @@ export const startJobQueueLoop = async () => {
       await new Promise((r) => setTimeout(r, 500));
       continue;
     }
+
     const jobId = await dequeueJob();
     if (!jobId) {
       await new Promise((r) => setTimeout(r, 1000)); // idle wait

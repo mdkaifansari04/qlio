@@ -1,6 +1,12 @@
 import { enqueueJob } from "@src/libs/priority-queue";
 import { clientSocket, workerSocket } from "@src/libs/socket";
-import { IStreamType, JobCancelPayload, SubscribePayload } from "@src/types";
+import {
+  IStreamType,
+  JobCanceledResponse,
+  JobCancelPayload,
+  SubscribePayload,
+} from "@src/types";
+import { constants as C } from "@src/utils/constants";
 import { Server } from "socket.io";
 
 const registerJobSocket = (io: Server) => {
@@ -54,11 +60,12 @@ const registerJobSocket = (io: Server) => {
       workerSocket[workerId] = socket;
     });
 
-    socket.on("job:cancel", ({ jobId, workerId }: JobCancelPayload) => {
-      workerSocket[workerId].emit("job:cancel", {
-        jobId,
-        workerId: workerSocket[workerId].id,
-      });
+    socket.on("job:cancel", ({ jobId }: JobCancelPayload) => {
+      workerSocket[C.WORKER_ID].emit("job:cancel", { jobId });
+    });
+
+    socket.on("job:canceled", ({ jobId, success }: JobCanceledResponse) => {
+      clientSocket[jobId].emit("job:canceled", { jobId, success });
     });
 
     socket.on("disconnect", () => {

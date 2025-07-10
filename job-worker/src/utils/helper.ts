@@ -3,6 +3,7 @@ import prisma from "@src/config/db";
 import { type Job } from "@prisma/client";
 import { Socket } from "socket.io-client";
 import { constants as C } from "@src/utils/constants";
+import pidusage from "pidusage";
 
 export function getBackoffDelay(retry: number): number {
   return [5000, 10000, 20000][retry] || 30000; // 5s, 10s, 20s

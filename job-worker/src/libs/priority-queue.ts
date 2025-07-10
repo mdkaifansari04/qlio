@@ -17,6 +17,7 @@ export const enqueueJob = async (job: Job, queueKey: string = constants.JOB_QUEU
 export const dequeueJob = async (queueKey: string = constants.JOB_QUEUE_KEY) => {
   for (const priority of PRIORITY_LEVELS) {
     const jobId = await redisClient.rpop(`${queueKey}:${PRIORITY_KEYS[priority]}`);
+
     if (jobId) {
       console.log(`📤 Dequeued job ${jobId} from priority ${priority}`);
       return jobId;

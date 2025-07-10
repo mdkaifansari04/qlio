@@ -20,9 +20,13 @@ export interface IStreamType {
 export type SubscribePayload = {
   jobId: string;
   priority: number;
+  queueKey?: string;
 };
 
 export type JobCancelPayload = {
   jobId: string;
-  workerId: string;
 };
+
+export interface JobCanceledResponse extends JobCancelPayload {
+  success: boolean;
+}

@@ -1,0 +1,183 @@
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+// import { useToast } from "@/hooks/use-toast";
+import { Plus, Terminal } from "lucide-react";
+
+export default function CreateJobPage() {
+  const router = useRouter();
+  //   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    command: "",
+    priority: "3",
+    timeout: "300000",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // TODO: Replace with actual API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      //   toast({
+      //     title: "Job Created",
+      //     description: "Your job has been successfully created and queued for execution.",
+      //   });
+
+      //   router.push("/dashboard/jobs");
+      // } catch (error) {
+      //   toast({
+      //     title: "Error",
+      //     description: "Failed to create job. Please try again.",
+      //     variant: "destructive",
+      //   });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Create New Job</h1>
+        <p className="text-muted-foreground">Configure and submit a new job for execution</p>
+      </div>
+
+      {/* Form */}
+      <div className="max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Job Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Command */}
+              <div className="space-y-2">
+                <Label htmlFor="command">Command *</Label>
+                <Textarea
+                  id="command"
+                  placeholder="Enter your shell command here..."
+                  value={formData.command}
+                  onChange={(e) => handleInputChange("command", e.target.value)}
+                  className="font-mono min-h-[100px]"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the shell command you want to execute. Use proper shell syntax.
+                </p>
+              </div>
+
+              {/* Priority */}
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select
+                  value={formData.priority}
+                  onValueChange={(value) => handleInputChange("priority", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 - Highest</SelectItem>
+                    <SelectItem value="2">2 - High</SelectItem>
+                    <SelectItem value="3">3 - Normal</SelectItem>
+                    <SelectItem value="4">4 - Low</SelectItem>
+                    <SelectItem value="5">5 - Lowest</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Higher priority jobs are executed first when resources are available.
+                </p>
+              </div>
+
+              {/* Timeout */}
+              <div className="space-y-2">
+                <Label htmlFor="timeout">Timeout (milliseconds)</Label>
+                <Input
+                  id="timeout"
+                  type="number"
+                  placeholder="300000"
+                  value={formData.timeout}
+                  onChange={(e) => handleInputChange("timeout", e.target.value)}
+                  min="1000"
+                  max="3600000"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum execution time in milliseconds (1000ms = 1 second). Max: 1 hour.
+                </p>
+              </div>
+
+              {/* Preview */}
+              <div className="space-y-2">
+                <Label>Preview</Label>
+                <div className="rounded-md bg-muted p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Terminal className="h-4 w-4" />
+                    <span className="font-medium">Command:</span>
+                    <span className="font-mono text-xs bg-background px-2 py-1 rounded">
+                      {formData.command || "No command entered"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Priority: {formData.priority} | Timeout:{" "}
+                    {Number.parseInt(formData.timeout) / 1000}s
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <div className="flex gap-4">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !formData.command.trim()}
+                  className="gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Create Job
+                    </>
+                  )}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => router.back()}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

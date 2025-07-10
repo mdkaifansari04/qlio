@@ -5,4 +5,5 @@ export const constants = {
   MAX_RETRIES: 3,
   RACE_CONDITION_TIMEOUT: 1000 * 60 * 2, // 10 minutes
   MAX_CONCURRENCY: 10,
+  WORKER_ID: "job-worker:id",
 };

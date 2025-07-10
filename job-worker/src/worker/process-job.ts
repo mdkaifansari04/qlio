@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "@src/config/db";
 import { enqueueJob } from "@src/libs/priority-queue";
-import redisClient from "@src/libs/redis";
 import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
 import { constants as C } from "@src/utils/constants";
 import { getBackoffDelay, killTimeout, terminateOnRaceCondition } from "@src/utils/helper";
@@ -10,11 +9,17 @@ import fs from "fs";
 import path from "path";
 import pidusage from "pidusage";
 
+let usageInterval: NodeJS.Timeout;
+let usageStats = {
+  cpu: 0,
+  memory: 0,
+};
+
 const processJob = async (jobId: string) => {
   const job = await prisma.job.findFirst({ where: { id: jobId } });
 
-  if (!job || job.status !== "PENDING") {
-    console.log(`⚠️ Skipping job ${jobId}, already processed or invalid`);
+  if (!job) {
+    console.log(`⚠️ Skipping job ${jobId}, not found`);
     return;
   }
 
@@ -30,6 +35,18 @@ const processJob = async (jobId: string) => {
   // Kill timeout and race condition on job timeout
   killTimeout(proc, jobId, job, workerSocket);
   terminateOnRaceCondition(proc, jobId, workerSocket);
+
+  //collect usage stats
+  usageInterval = setInterval(async () => {
+    pidusage(Number(proc.pid), (err, stats) => {
+      if (err) {
+        console.error("Error getting usage stats:", err);
+        return;
+      }
+      usageStats.cpu = stats.cpu;
+      usageStats.memory = stats.memory;
+    });
+  }, 1000);
 
   const startedAt = new Date();
   await prisma.job.update({
@@ -84,8 +101,7 @@ const processJob = async (jobId: string) => {
   // Job done
   proc.on("close", async (exitCode) => {
     fs.unlink(filePath, () => {});
-
-    const { cpu, memory } = await pidusage(proc.pid as number);
+    clearInterval(usageInterval);
 
     if (exitCode !== 0) {
       const job = await prisma.job.findUnique({ where: { id: jobId } });
@@ -97,8 +113,8 @@ const processJob = async (jobId: string) => {
           data: {
             retries: { increment: 1 },
             status: "PENDING",
-            cpuUsage: cpu,
-            memoryUsage: memory / 1024 / 1024, // converting memory Bytes to MB
+            cpuUsage: usageStats.cpu,
+            memoryUsage: usageStats.memory / 1024 / 1024, // converting memory Bytes to MB
           },
         });
 
@@ -111,7 +127,11 @@ const processJob = async (jobId: string) => {
       } else {
         await prisma.job.update({
           where: { id: jobId },
-          data: { status: "FAILED", cpuUsage: cpu, memoryUsage: memory / 1024 / 1024 }, // converting memory Bytes to MB
+          data: {
+            status: "FAILED",
+            cpuUsage: usageStats.cpu,
+            memoryUsage: usageStats.memory / 1024 / 1024,
+          }, // converting memory Bytes to MB
         });
       }
     }
@@ -131,8 +151,8 @@ const processJob = async (jobId: string) => {
         exitCode,
         endedAt,
         output: output,
-        cpuUsage: cpu,
-        memoryUsage: memory / 1024 / 1024, // converting memory Bytes to MB
+        cpuUsage: usageStats.cpu,
+        memoryUsage: usageStats.memory / 1024 / 1024, // converting memory Bytes to MB
       },
     });
 

@@ -19,6 +19,4 @@ async function bootstrap() {
   pushPendingJobToRetry();
 }
 
-if (require.main === module) {
-  bootstrap();
-}
+bootstrap();
