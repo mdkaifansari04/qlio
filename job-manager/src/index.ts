@@ -1,13 +1,13 @@
-import express from "express";
-import router from "./api/v1/routes";
 import { config } from "dotenv";
-import prisma from "./config/db";
-import { Server, Socket } from "socket.io";
+import express from "express";
 import { createServer } from "http";
-import { clientSocket } from "./libs/socket";
-import registerJobSocket from "./sockets/job.socket";
+import { Server } from "socket.io";
+import router from "./api/v1/routes";
+import prisma from "./config/db";
 import { startSpawn } from "./demo";
-
+import registerJobSocket from "./sockets/job.socket";
+import cors from "cors";
+import errorHandler from "./middleware/error";
 config();
 
 const app = express();
@@ -17,7 +17,7 @@ const io = new Server(server);
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
-
+app.use(cors());
 app.post("/demo-spawn", startSpawn);
 
 app.get("/health", async (req, res) => {
@@ -51,7 +51,7 @@ app.get("/health", async (req, res) => {
 });
 
 app.use("/api/v1", router);
-
+app.use(errorHandler);
 registerJobSocket(io);
 
 server.listen(PORT, () => {

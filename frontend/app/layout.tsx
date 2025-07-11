@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ClientProvider from "@/provider/client-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,17 +37,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {/* <NavbarContainer /> */}
-          <NavbarContainer />
-          {children}
-          <Footer />
-        </ThemeProvider>
+        <ClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {/* <NavbarContainer /> */}
+            <NavbarContainer />
+            {children}
+            <Footer />
+            <Toaster />
+          </ThemeProvider>
+        </ClientProvider>
       </body>
     </html>
   );
