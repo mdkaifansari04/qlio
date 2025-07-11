@@ -17,6 +17,8 @@ export const signUp = async (body: SignUpPayload) => {
 // };
 
 export const login = async (body: LoginPayload) => {
-  const { data } = await usersApi.post<ApiResponse<User>>("/login", body);
+  const { data } = await usersApi.post<ApiResponse<string>>("/login", body, {
+    withCredentials: true,
+  });
   return data.data;
 };

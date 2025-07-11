@@ -15,8 +15,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faqs } from "@/lib/faqs";
+import { withAuth } from "@/provider/auth-provider";
 
-export default function Home() {
+const Home = () => {
   return (
     <main className="flex text-primary flex-col h-full w-full container mx-auto">
       <section className="md:min-h-screen sm:h-[calc(100vh-65px)] bg-background text-foreground flex items-center">
@@ -116,4 +117,6 @@ export default function Home() {
       </BlurFade>
     </main>
   );
-}
+};
+
+export default Home;

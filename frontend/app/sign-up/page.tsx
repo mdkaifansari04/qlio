@@ -1,11 +1,11 @@
 import AuthForm from "@/components/container/auth-form";
 
-function page() {
+const SignUp = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <AuthForm type="signup" />
     </div>
   );
-}
+};
 
-export default page;
+export default SignUp;

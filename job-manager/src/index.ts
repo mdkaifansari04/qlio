@@ -17,7 +17,12 @@ const io = new Server(server);
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+  }),
+);
 app.post("/demo-spawn", startSpawn);
 
 app.get("/health", async (req, res) => {

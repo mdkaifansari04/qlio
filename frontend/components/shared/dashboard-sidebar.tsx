@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Activity, Home, Plus, Settings, Terminal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Home, Plus, Settings, Terminal, Activity, Zap } from "lucide-react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { APP_NAME, APP_VERSION } from "@/constants";
+import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 
 const navigationItems = [

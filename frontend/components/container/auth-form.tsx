@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getErrorMessage } from "@/lib/utils";
+import { accessTokenStorage } from "@/lib/token-storage";
 
 function AuthForm({ type }: { type: "login" | "signup" }) {
   const [formData, setFormData] = useState({
@@ -35,7 +36,13 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
     login(
       { email: formData.email, password: formData.password },
       {
-        onSuccess: () => {
+        onSuccess: (token) => {
+          console.log("token", token);
+          console.log(
+            "cookie",
+            document.cookie.split(";").find((c) => c.includes("token"))
+          );
+
           router.push("/dashboard");
         },
         onError: (error) => {
