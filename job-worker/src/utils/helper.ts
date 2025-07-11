@@ -29,7 +29,7 @@ export const terminateOnRaceCondition = async (
     }
     console.log(`❌ Race condition detected. Killing process.`);
     proc.kill("SIGTERM");
-  }, C.RACE_CONDITION_TIMEOUT * 1000); // 2 minutes
+  }, C.RACE_CONDITION_TIMEOUT); // 5 minutes
 };
 
 export const killTimeout = (proc: ChildProcess, jobId: string, job: Job, workerSocket: Socket) => {
@@ -48,5 +48,5 @@ export const killTimeout = (proc: ChildProcess, jobId: string, job: Job, workerS
       exitCode: 1,
     });
     proc.kill("SIGTERM");
-  }, job.timeout * 1000);
+  }, job.timeout);
 };

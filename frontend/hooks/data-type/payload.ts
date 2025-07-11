@@ -1,16 +1,17 @@
 export interface SignUpPayload {
-  email: string;
-  password: string;
-  name: string;
+  email: string
+  password: string
+  name: string
 }
 
 export interface LoginPayload {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export interface JobPayload {
-  command: string;
-  priority: number;
-  timeout: number;
+  command: string
+  priority: number
+  timeout: number
+  params?: string[]
 }

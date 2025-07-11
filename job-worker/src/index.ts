@@ -1,7 +1,8 @@
 import { config } from "dotenv";
+config();
+
 import { startJobQueueLoop } from "./worker/job-queue-loop";
 import { pushPendingJobToRetry, startRetryLoop } from "./worker/retry-loop";
-config();
 
 process.on("uncaughtException", (err) => {
   console.log("Uncaught Exception :", err.message);

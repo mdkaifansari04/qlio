@@ -59,6 +59,7 @@ const registerJobSocket = (io: Server) => {
     // worker request connection
     socket.on("register:worker", ({ workerId }: { workerId: string }) => {
       workerSocket[workerId] = socket;
+      console.log("🟢 Worker connected :", workerId);
     });
 
     // job cancel : event sent from user

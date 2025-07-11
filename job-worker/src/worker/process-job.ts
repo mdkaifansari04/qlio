@@ -33,7 +33,7 @@ const processJob = async (jobId: string) => {
   fs.writeFileSync(filePath, command, { mode: 0o755 });
   console.log(`🚀 Starting job ${jobId}: ${command}`);
 
-  const proc = spawn("bash", [filePath]);
+  const proc = spawn("bash", [filePath, ...(job.params || [])]);
 
   // Kill timeout and race condition on job timeout
   killTimeout(proc, jobId, job, workerSocket);

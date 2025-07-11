@@ -10,7 +10,7 @@ export const webSocket = io(process.env.JOB_MANGER_SOCKET_URL!, {
   reconnectionDelay: 2000,
 });
 
-webSocket.on("connection", (socket) => {
+webSocket.on("connect", () => {
   console.log("[worker] connected to job-manager");
   webSocket.emit("register:worker", { workerId: C.WORKER_ID });
 });

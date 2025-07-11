@@ -5,7 +5,7 @@ import { Server } from "socket.io";
 import router from "./api/v1/routes";
 import prisma from "./config/db";
 import { startSpawn } from "./demo";
-import registerJobSocket from "./sockets/job.socket";
+import registerJobSocket from "./sockets/job-manager-socket";
 import cors from "cors";
 import errorHandler from "./middleware/error";
 import redisClient from "./libs/redis";

@@ -1,76 +1,85 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Plus, Terminal } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useCreateJob } from "@/hooks/mutation";
-import { Textarea } from "@/components/ui/textarea";
-import { getErrorMessage } from "@/lib/utils";
-import { useSocket } from "@/provider/socket-provider";
+} from "@/components/ui/select"
+import { Plus, Terminal } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { useCreateJob } from "@/hooks/mutation"
+import { Textarea } from "@/components/ui/textarea"
+import { getErrorMessage } from "@/lib/utils"
+import { useSocket } from "@/provider/socket-provider"
 
 export default function CreateJobPage() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const { mutate: createJobMutation, isPending: isSubmitting } = useCreateJob();
-  const socket = useSocket();
+  const router = useRouter()
+  const { toast } = useToast()
+  const { mutate: createJobMutation, isPending: isSubmitting } = useCreateJob()
+  const socket = useSocket()
   const [formData, setFormData] = useState({
     command: "",
     priority: 3,
     timeout: 300000,
-  });
+    params: [""],
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     createJobMutation(
       {
         command: formData.command,
         priority: Number(formData.priority),
         timeout: Number(formData.timeout),
+        params: formData.params,
       },
       {
         onSuccess: (data) => {
           toast({
             title: "Job Created",
-            description: "Your job has been successfully created and queued for execution.",
-          });
-          router.push(`/dashboard/jobs/${data.id}`);
+            description:
+              "Your job has been successfully created and queued for execution.",
+          })
+          router.push(`/dashboard/jobs/${data.id}`)
         },
         onError: (error) => {
           toast({
             title: "Error",
             description: getErrorMessage(error),
             variant: "destructive",
-          });
+          })
         },
       }
-    );
-  };
+    )
+  }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleParamsChange = (params: string[]) => {
+    setFormData((prev) => ({ ...prev, params }))
+  }
 
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Create New Job</h1>
-        <p className="text-muted-foreground">Configure and submit a new job for execution</p>
+        <p className="text-muted-foreground">
+          Configure and submit a new job for execution
+        </p>
       </div>
 
       {/* Form */}
@@ -96,16 +105,21 @@ export default function CreateJobPage() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Enter the shell command you want to execute. Use proper shell syntax.
+                  Enter the shell command you want to execute. Use proper shell
+                  syntax.
                 </p>
               </div>
+
+              <ScriptParamsInput onChange={handleParamsChange} />
 
               {/* Priority */}
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select
                   value={formData.priority.toString()}
-                  onValueChange={(value) => handleInputChange("priority", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("priority", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
@@ -117,7 +131,8 @@ export default function CreateJobPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Higher priority jobs are executed first when resources are available.
+                  Higher priority jobs are executed first when resources are
+                  available.
                 </p>
               </div>
 
@@ -134,7 +149,8 @@ export default function CreateJobPage() {
                   max="3600000"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Maximum execution time in milliseconds (1000ms = 1 second). Max: 1 hour.
+                  Maximum execution time in milliseconds (1000ms = 1 second).
+                  Max: 1 hour.
                 </p>
               </div>
 
@@ -149,8 +165,16 @@ export default function CreateJobPage() {
                       {formData.command || "No command entered"}
                     </span>
                   </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Terminal className="h-4 w-4" />
+                    <span className="font-medium">Parameters:</span>
+                    <span className="font-mono text-xs bg-background px-2 py-1 rounded">
+                      {formData.params.join(" ")}
+                    </span>
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    Priority: {formData.priority} | Timeout: {formData.timeout / 1000}s
+                    Priority: {formData.priority} | Timeout:{" "}
+                    {formData.timeout / 1000}s
                   </div>
                 </div>
               </div>
@@ -174,7 +198,11 @@ export default function CreateJobPage() {
                     </>
                   )}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => router.back()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                >
                   Cancel
                 </Button>
               </div>
@@ -183,5 +211,52 @@ export default function CreateJobPage() {
         </Card>
       </div>
     </div>
-  );
+  )
+}
+
+export function ScriptParamsInput({
+  onChange,
+}: {
+  onChange: (params: string[]) => void
+}) {
+  const [params, setParams] = useState<string[]>([""])
+
+  const updateParam = (index: number, value: string) => {
+    const updated = [...params]
+    updated[index] = value
+    setParams(updated)
+    onChange(updated.filter((p) => p.trim())) // send only valid ones
+  }
+
+  const addParam = () => {
+    setParams([...params, ""])
+  }
+
+  const removeParam = (index: number) => {
+    const updated = params.filter((_, i) => i !== index)
+    setParams(updated)
+    onChange(updated.filter((p) => p.trim()))
+  }
+
+  return (
+    <div className="space-y-2">
+      {params.map((param, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <Input
+            placeholder={`${index + 1} value`}
+            value={param}
+            onChange={(e) => updateParam(index, e.target.value)}
+          />
+          {params.length > 1 && (
+            <Button variant="destructive" onClick={() => removeParam(index)}>
+              Remove
+            </Button>
+          )}
+        </div>
+      ))}
+      <Button type="button" variant="secondary" onClick={addParam}>
+        + Add Parameter
+      </Button>
+    </div>
+  )
 }
