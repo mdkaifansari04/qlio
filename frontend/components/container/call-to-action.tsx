@@ -1,6 +1,6 @@
-import { MoveRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { MoveRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function CallToAction() {
   return (
@@ -10,15 +10,18 @@ export default function CallToAction() {
           <div className="flex flex-col gap-2 sm:gap-4">
             <h3 className="font-medium font-eb-garamond text-3xl sm:text-4xl md:text-6xl tracking-tighter max-w-2xl font-regular dark:text-white">
               Build Your Job Queue{" "}
-              <span className="underline underline-offset-8 decoration-blue-500">Now!</span>
+              <span className="underline underline-offset-8 decoration-blue-500">
+                Now!
+              </span>
             </h3>
             <p className="text-base sm:text-lg leading-relaxed tracking-tight text-muted-foreground max-w-2xl mx-auto">
-              Create a job queue for your business in minutes. Our job queue builder app helps you
-              create a professional, eye-catching job queue in minutes. Stand out from the crowd and
-              make a lasting impression on potential employers or clients.
+              Create a job queue for your business in minutes. Our job queue
+              builder app helps you create a professional, eye-catching job
+              queue in minutes. Stand out from the crowd and make a lasting
+              impression on potential employers or clients.
             </p>
           </div>
-          <Link href="/create">
+          <Link href="/dashboard/jobs/create-job">
             <Button className="gap-2 sm:gap-4 w-full md:w-auto min-w-[200px]">
               Get Started <MoveRight className="w-4 h-4" />
             </Button>
@@ -26,5 +29,5 @@ export default function CallToAction() {
         </div>
       </div>
     </div>
-  );
+  )
 }
