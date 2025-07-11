@@ -7,7 +7,6 @@ import { getBackoffDelay, killTimeout, terminateOnRaceCondition } from "@src/uti
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import pidusage from "pidusage";
 
 let usageInterval: NodeJS.Timeout;
 let usageStats = {
@@ -39,19 +38,6 @@ const processJob = async (jobId: string) => {
   // Kill timeout and race condition on job timeout
   killTimeout(proc, jobId, job, workerSocket);
   terminateOnRaceCondition(proc, jobId, workerSocket);
-
-  //collect usage stats
-  // usageInterval = setInterval(async () => {
-  //   if (!proc.pid) return;
-  //   pidusage(Number(proc.pid), (err, stats) => {
-  //     if (err) {
-  //       console.error("Error getting usage stats:", err);
-  //       return;
-  //     }
-  //     usageStats.cpu = stats.cpu;
-  //     usageStats.memory = stats.memory;
-  //   });
-  // }, 1000);
 
   const startedAt = new Date();
   await prisma.job.update({
@@ -106,9 +92,6 @@ const processJob = async (jobId: string) => {
   // Job done
   proc.on("close", async (exitCode) => {
     fs.unlink(filePath, () => {});
-    // clearInterval(usageInterval);log
-
-    console.log("exitCode", exitCode);
 
     if (exitCode !== 0) {
       const job = await prisma.job.findUnique({ where: { id: jobId } });

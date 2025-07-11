@@ -52,9 +52,7 @@ const registerJobSocket = (io: Server) => {
         const userSocket = clientSocket[jobId];
         if (userSocket && userSocket.connected) {
           userSocket.emit("job:done", { jobId, exitCode });
-          userSocket.disconnect();
         }
-        delete clientSocket[jobId];
       },
     );
 

@@ -107,7 +107,6 @@ export default function JobDetailPage() {
 
     const handleUpdate = (data: JobStreamResponse) => {
       if (data.jobId === job.id) {
-        console.log("job:update", data)
         if (data.output) {
           setOutputLogs((prev) => [...prev, data.output])
         }
@@ -117,10 +116,17 @@ export default function JobDetailPage() {
     const handleDone = (data: JobStreamResponse) => {
       if (data.jobId === job.id) {
         setImplicitStatus(data.exitCode === 0 ? "SUCCESS" : "FAILED")
+        const lastLog = {
+          success: data.exitCode === 0,
+          response:
+            data.exitCode === 0
+              ? "Your job executed successfully 🎉"
+              : "Your job failed 💀",
+          timestamp: new Date().toISOString(),
+        }
+        setOutputLogs((prev) => [...prev, lastLog])
       }
     }
-
-    console.log("output logs ", outputLogs)
 
     socket.on("job:update", handleUpdate)
     socket.on("job:done", handleDone)
@@ -130,7 +136,7 @@ export default function JobDetailPage() {
     return () => {
       socket.off("job:update", handleUpdate)
       socket.off("job:done", handleUpdate)
-      // socket.emit("job:unsubscribe", job.id);
+      socket.emit("job:unsubscribe", job.id)
     }
   }, [job?.id, socket?.connected])
 
@@ -288,20 +294,10 @@ export default function JobDetailPage() {
                 <div className="text-gray-700">Waiting for output...</div>
               ) : (
                 job.output.map((log, index) => (
-                  <div key={index} className="flex gap-2 py-0.5">
-                    <span className="text-gray-400 shrink-0 select-none">
-                      {formatTimestamp(log.timestamp || "")} ==&gt;
-                    </span>
-                    <span
-                      className={log.success ? "text-gray-100" : "text-red-400"}
-                    >
-                      {log.response.trim()}
-                    </span>
-                  </div>
+                  <OutputLog log={log} index={index} />
                 ))
               )}
-              {implicitStatus === "PENDING" ||
-                (job.status === "PENDING" && <JobPending />)}
+              {implicitStatus === "PENDING" && <JobRunningStatus />}
               {job.status === "PENDING" &&
                 isStreaming &&
                 outputLogs.map((log, index) => (
@@ -359,7 +355,7 @@ function OutputLog({ log, index }: { log: JobResponse; index: number }) {
   )
 }
 
-function JobPending() {
+function JobRunningStatus() {
   return (
     <div className="flex gap-2 py-0.5">
       <span className="text-gray-400 shrink-0">

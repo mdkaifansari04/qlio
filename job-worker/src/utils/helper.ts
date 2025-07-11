@@ -1,9 +1,8 @@
-import { ChildProcess } from "child_process";
-import prisma from "@src/config/db";
 import { type Job } from "@prisma/client";
-import { Socket } from "socket.io-client";
+import prisma from "@src/config/db";
 import { constants as C } from "@src/utils/constants";
-import pidusage from "pidusage";
+import { ChildProcess } from "child_process";
+import { Socket } from "socket.io-client";
 
 export function getBackoffDelay(retry: number): number {
   return [5000, 10000, 20000][retry] || 30000; // 5s, 10s, 20s
@@ -30,7 +29,7 @@ export const terminateOnRaceCondition = async (
     }
     console.log(`❌ Race condition detected. Killing process.`);
     proc.kill("SIGTERM");
-  }, C.RACE_CONDITION_TIMEOUT); // 10 minutes
+  }, C.RACE_CONDITION_TIMEOUT * 1000); // 2 minutes
 };
 
 export const killTimeout = (proc: ChildProcess, jobId: string, job: Job, workerSocket: Socket) => {
@@ -49,5 +48,5 @@ export const killTimeout = (proc: ChildProcess, jobId: string, job: Job, workerS
       exitCode: 1,
     });
     proc.kill("SIGTERM");
-  }, job.timeout);
+  }, job.timeout * 1000);
 };

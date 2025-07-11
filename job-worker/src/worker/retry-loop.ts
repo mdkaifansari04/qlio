@@ -8,19 +8,21 @@ export const startRetryLoop = () => {
     const jobId = await dequeueJob(constants.JOB_QUEUE_KEY_RETRY);
     if (!jobId) return;
 
-    console.log(`[Retry] Retrying job: ${jobId}`);
-    await processJob(jobId); // Same logic as main job handler
-  }, 3000); // Poll retry queue every 3s
+    await processJob(jobId);
+  }, 1000 * 60 * 20); // Poll retry queue every 20 min
 };
 
 export const pushPendingJobToRetry = async () => {
   setInterval(async () => {
-    const job = await prisma.job.findMany({ where: { status: "PENDING" } });
+    const job = await prisma.job.findMany({
+      where: { status: { in: ["PENDING", "RUNNING"] } },
+      orderBy: { createdAt: "asc" },
+    });
     if (job.length === 0) return;
 
     job.forEach(async (job) => {
-      await enqueueJob(job, constants.JOB_QUEUE_KEY_RETRY);
+      await enqueueJob(job, constants.JOB_QUEUE_KEY);
     });
     console.log(`[Retry] Pushed ${job.length} pending jobs to retry queue`);
-  }, 1000 * 60 * 10); // every 10 min
+  }, 1000 * 60 * 20); // every 20 min
 };
