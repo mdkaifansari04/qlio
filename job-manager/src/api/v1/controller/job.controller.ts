@@ -54,3 +54,27 @@ export const getJobs = async (
     next(new ErrorResponse(`Internal server error : ${error}`, 500));
   }
 };
+
+export const getJobById = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const job = await client.job.findUnique({
+      where: {
+        id,
+        userId: req.userId,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Job fetched successfully",
+      data: job,
+    });
+  } catch (error) {
+    next(new ErrorResponse(`Internal server error : ${error}`, 500));
+  }
+};

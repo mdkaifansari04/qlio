@@ -6,5 +6,6 @@ import verifyUser from "@src/middleware/verify-user";
 const router = Router();
 
 router.post("/", verifyUser, createJobValidation, Jobs.createJob);
-
+router.get("/", verifyUser, Jobs.getJobs);
+router.get("/:id", verifyUser, Jobs.getJobById);
 export default router;

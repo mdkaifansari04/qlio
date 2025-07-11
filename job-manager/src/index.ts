@@ -8,6 +8,7 @@ import { startSpawn } from "./demo";
 import registerJobSocket from "./sockets/job.socket";
 import cors from "cors";
 import errorHandler from "./middleware/error";
+import redisClient from "./libs/redis";
 config();
 
 const app = express();
@@ -29,11 +30,10 @@ app.get("/health", async (req, res) => {
   try {
     const dbStatus = await prisma.$queryRaw`SELECT 1`;
     const isDbHealthy = dbStatus === "pong" || dbStatus;
-
+    const isRedisHealthy = await redisClient.ping();
     const uptime = process.uptime();
 
-    // const allSystemsOperational = isDbHealthy && queueStatus;
-    const allSystemsOperational = isDbHealthy;
+    const allSystemsOperational = isDbHealthy && isRedisHealthy;
 
     res.status(allSystemsOperational ? 200 : 500).json({
       success: allSystemsOperational,
@@ -41,7 +41,7 @@ app.get("/health", async (req, res) => {
       uptime: `${Math.floor(uptime)}s`,
       dependencies: {
         database: isDbHealthy ? "up" : "down",
-        // queue: queueStatus ? "up" : "down",
+        queue: isRedisHealthy ? "up" : "down",
       },
       timestamp: new Date().toISOString(),
     });

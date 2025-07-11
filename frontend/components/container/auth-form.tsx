@@ -12,12 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin, useSignUp } from "@/hooks/mutation";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { getErrorMessage } from "@/lib/utils";
 import { accessTokenStorage } from "@/lib/token-storage";
+import { getErrorMessage } from "@/lib/utils";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 function AuthForm({ type }: { type: "login" | "signup" }) {
   const [formData, setFormData] = useState({
@@ -36,13 +36,8 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
     login(
       { email: formData.email, password: formData.password },
       {
-        onSuccess: (token) => {
-          console.log("token", token);
-          console.log(
-            "cookie",
-            document.cookie.split(";").find((c) => c.includes("token"))
-          );
-
+        onSuccess: (data) => {
+          accessTokenStorage.set(data);
           router.push("/dashboard");
         },
         onError: (error) => {

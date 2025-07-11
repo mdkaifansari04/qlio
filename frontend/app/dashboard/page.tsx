@@ -1,49 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatsCardPendingView } from "@/components/shared/skeleton";
+import QueryWrapper from "@/components/shared/wrapper";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useGetJobs } from "@/hooks/queries";
+import { calculateJobStats, extractJobGraphs } from "@/lib/utils";
+import { CheckCircle, Circle, Clock, Terminal, TrendingUp, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
   XAxis,
   YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
 } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Activity, CheckCircle, Circle, Clock, Terminal, TrendingUp, XCircle } from "lucide-react";
-
-// Mock data
-const jobsOverTime = [
-  { date: "Jan 4", jobs: 12 },
-  { date: "Jan 5", jobs: 19 },
-  { date: "Jan 6", jobs: 8 },
-  { date: "Jan 7", jobs: 15 },
-  { date: "Jan 8", jobs: 22 },
-  { date: "Jan 9", jobs: 18 },
-  { date: "Jan 10", jobs: 25 },
-];
-
-const resourceUsage = [
-  { job: "Job 1", cpu: 45, memory: 32 },
-  { job: "Job 2", cpu: 78, memory: 56 },
-  { job: "Job 3", cpu: 23, memory: 18 },
-  { job: "Job 4", cpu: 67, memory: 43 },
-  { job: "Job 5", cpu: 89, memory: 71 },
-];
 
 export default function DashboardPage() {
-  const [stats] = useState({
-    totalJobs: 1247,
-    successfulJobs: 1089,
-    failedJobs: 158,
-    avgExecutionTime: 42.3,
-  });
-
+  const { data: jobs, isError, isPending, error } = useGetJobs();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const stats = calculateJobStats(jobs || []);
+  const graphs = extractJobGraphs(jobs || []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -71,59 +52,64 @@ export default function DashboardPage() {
           Main Server
         </Badge>
       </div>
+      <QueryWrapper
+        data={jobs}
+        isPending={isPending}
+        isError={isError}
+        error={error}
+        pendingView={<StatsCardPendingView />}
+        view={
+          jobs && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
+                  <Terminal className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.totalJobs}</div>
+                  <p className="text-xs text-muted-foreground">
+                    <TrendingUp className="inline h-3 w-3" /> +12% from last month
+                  </p>
+                </CardContent>
+              </Card>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-            <Terminal className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalJobs.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3" /> +12% from last month
-            </p>
-          </CardContent>
-        </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Successful Jobs</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.successfulJobs}</div>
+                  <p className="text-xs text-muted-foreground">{stats.successRate}% success rate</p>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Successful Jobs</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.successfulJobs.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.successfulJobs / stats.totalJobs) * 100).toFixed(1)}% success rate
-            </p>
-          </CardContent>
-        </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Failed Jobs</CardTitle>
+                  <XCircle className="h-4 w-4 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.failedJobs}</div>
+                  <p className="text-xs text-muted-foreground">{stats.failureRate}% failure rate</p>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failed Jobs</CardTitle>
-            <XCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.failedJobs.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              {((stats.failedJobs / stats.totalJobs) * 100).toFixed(1)}% failure rate
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Execution Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.avgExecutionTime}s</div>
-            <p className="text-xs text-muted-foreground">-2.1s from last week</p>
-          </CardContent>
-        </Card>
-      </div>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Avg Execution Time</CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stats.avgExecutionTimeSec}s</div>
+                  <p className="text-xs text-muted-foreground">-2.1s from last week</p>
+                </CardContent>
+              </Card>
+            </div>
+          )
+        }
+      />
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
@@ -142,7 +128,7 @@ export default function DashboardPage() {
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={jobsOverTime}>
+                <LineChart data={graphs.jobsOverTime}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
@@ -173,7 +159,7 @@ export default function DashboardPage() {
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart className="rounded-md" data={resourceUsage}>
+                <BarChart className="rounded-md" data={graphs.resourceUsage}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="job" />
                   <YAxis />

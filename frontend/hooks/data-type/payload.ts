@@ -8,3 +8,9 @@ export interface LoginPayload {
   email: string;
   password: string;
 }
+
+export interface JobPayload {
+  command: string;
+  priority: number;
+  timeout: number;
+}

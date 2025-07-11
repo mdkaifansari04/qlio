@@ -18,8 +18,12 @@ let usageStats = {
 const processJob = async (jobId: string) => {
   const job = await prisma.job.findFirst({ where: { id: jobId } });
 
-  if (!job) {
-    console.log(`⚠️ Skipping job ${jobId}, not found`);
+  if (!job || job.status !== "PENDING") {
+    console.log("❌ Skipping job, already executed or not found");
+    workerSocket.emit("job:done", {
+      jobId,
+      exitCode: 0,
+    });
     return;
   }
 
@@ -37,16 +41,17 @@ const processJob = async (jobId: string) => {
   terminateOnRaceCondition(proc, jobId, workerSocket);
 
   //collect usage stats
-  usageInterval = setInterval(async () => {
-    pidusage(Number(proc.pid), (err, stats) => {
-      if (err) {
-        console.error("Error getting usage stats:", err);
-        return;
-      }
-      usageStats.cpu = stats.cpu;
-      usageStats.memory = stats.memory;
-    });
-  }, 1000);
+  // usageInterval = setInterval(async () => {
+  //   if (!proc.pid) return;
+  //   pidusage(Number(proc.pid), (err, stats) => {
+  //     if (err) {
+  //       console.error("Error getting usage stats:", err);
+  //       return;
+  //     }
+  //     usageStats.cpu = stats.cpu;
+  //     usageStats.memory = stats.memory;
+  //   });
+  // }, 1000);
 
   const startedAt = new Date();
   await prisma.job.update({
@@ -101,7 +106,9 @@ const processJob = async (jobId: string) => {
   // Job done
   proc.on("close", async (exitCode) => {
     fs.unlink(filePath, () => {});
-    clearInterval(usageInterval);
+    // clearInterval(usageInterval);log
+
+    console.log("exitCode", exitCode);
 
     if (exitCode !== 0) {
       const job = await prisma.job.findUnique({ where: { id: jobId } });

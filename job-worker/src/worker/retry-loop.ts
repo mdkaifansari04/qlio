@@ -1,11 +1,11 @@
-import redisClient from "@src/libs/redis";
+import prisma from "@src/config/db";
+import { dequeueJob, enqueueJob } from "@src/libs/priority-queue";
 import { constants } from "@src/utils/constants";
 import processJob from "./process-job";
-import prisma from "@src/config/db";
 
 export const startRetryLoop = () => {
   setInterval(async () => {
-    const jobId = await redisClient.rpop(constants.JOB_QUEUE_KEY_RETRY);
+    const jobId = await dequeueJob(constants.JOB_QUEUE_KEY_RETRY);
     if (!jobId) return;
 
     console.log(`[Retry] Retrying job: ${jobId}`);
@@ -19,8 +19,8 @@ export const pushPendingJobToRetry = async () => {
     if (job.length === 0) return;
 
     job.forEach(async (job) => {
-      await redisClient.lpush(constants.JOB_QUEUE_KEY_RETRY, job.id);
+      await enqueueJob(job, constants.JOB_QUEUE_KEY_RETRY);
     });
     console.log(`[Retry] Pushed ${job.length} pending jobs to retry queue`);
-  }, 1000 * 60 * 30); // every 30 min
+  }, 1000 * 60 * 10); // every 10 min
 };

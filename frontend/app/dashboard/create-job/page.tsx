@@ -15,43 +15,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-// import { useToast } from "@/hooks/use-toast";
 import { Plus, Terminal } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useCreateJob } from "@/hooks/mutation";
+import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/utils";
+import { useSocket } from "@/provider/socket-provider";
 
 export default function CreateJobPage() {
   const router = useRouter();
-  //   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const { mutate: createJobMutation, isPending: isSubmitting } = useCreateJob();
+  const socket = useSocket();
   const [formData, setFormData] = useState({
     command: "",
-    priority: "3",
-    timeout: "300000",
+    priority: 3,
+    timeout: 300000,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      //   toast({
-      //     title: "Job Created",
-      //     description: "Your job has been successfully created and queued for execution.",
-      //   });
-
-      //   router.push("/dashboard/jobs");
-      // } catch (error) {
-      //   toast({
-      //     title: "Error",
-      //     description: "Failed to create job. Please try again.",
-      //     variant: "destructive",
-      //   });
-    } finally {
-      setIsSubmitting(false);
-    }
+    createJobMutation(
+      {
+        command: formData.command,
+        priority: Number(formData.priority),
+        timeout: Number(formData.timeout),
+      },
+      {
+        onSuccess: (data) => {
+          toast({
+            title: "Job Created",
+            description: "Your job has been successfully created and queued for execution.",
+          });
+          router.push(`/dashboard/jobs/${data.id}`);
+        },
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: getErrorMessage(error),
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -97,18 +104,16 @@ export default function CreateJobPage() {
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select
-                  value={formData.priority}
+                  value={formData.priority.toString()}
                   onValueChange={(value) => handleInputChange("priority", value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1 - Highest</SelectItem>
-                    <SelectItem value="2">2 - High</SelectItem>
-                    <SelectItem value="3">3 - Normal</SelectItem>
-                    <SelectItem value="4">4 - Low</SelectItem>
-                    <SelectItem value="5">5 - Lowest</SelectItem>
+                    <SelectItem value="1">1 - High</SelectItem>
+                    <SelectItem value="2">2 - Normal</SelectItem>
+                    <SelectItem value="3">3 - Low</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
@@ -123,7 +128,7 @@ export default function CreateJobPage() {
                   id="timeout"
                   type="number"
                   placeholder="300000"
-                  value={formData.timeout}
+                  value={formData.timeout.toString()}
                   onChange={(e) => handleInputChange("timeout", e.target.value)}
                   min="1000"
                   max="3600000"
@@ -145,8 +150,7 @@ export default function CreateJobPage() {
                     </span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Priority: {formData.priority} | Timeout:{" "}
-                    {Number.parseInt(formData.timeout) / 1000}s
+                    Priority: {formData.priority} | Timeout: {formData.timeout / 1000}s
                   </div>
                 </div>
               </div>

@@ -62,10 +62,7 @@ export const userLogin = async (
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
-      data: {
-        token,
-        user,
-      },
+      data: token,
     });
   } catch (error) {
     next(new ErrorResponse(`Internal server error : ${error}`, 500));

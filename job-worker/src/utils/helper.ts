@@ -16,15 +16,19 @@ export const terminateOnRaceCondition = async (
 ) => {
   setTimeout(async () => {
     if (proc.killed) return;
+
+    const job = await prisma.job.findFirst({ where: { id: jobId } });
+    if (job && job.status === "PENDING") {
+      await prisma.job.update({
+        where: { id: jobId },
+        data: { status: "FAILED" },
+      });
+      workerSocket.emit("job:done", {
+        jobId,
+        exitCode: 1,
+      });
+    }
     console.log(`❌ Race condition detected. Killing process.`);
-    await prisma.job.update({
-      where: { id: jobId },
-      data: { status: "FAILED" },
-    });
-    workerSocket.emit("job:done", {
-      jobId,
-      exitCode: 1,
-    });
     proc.kill("SIGTERM");
   }, C.RACE_CONDITION_TIMEOUT); // 10 minutes
 };

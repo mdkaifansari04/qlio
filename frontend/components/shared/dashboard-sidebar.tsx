@@ -19,7 +19,6 @@ const navigationItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const [runningJobs] = useState(3); // Mock running jobs count
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card">
@@ -37,7 +36,7 @@ export function DashboardSidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href || pathname.split(item.href).pop() === "";
           return (
             <Link key={item.href} href={item.href}>
               <Button
@@ -46,11 +45,6 @@ export function DashboardSidebar() {
               >
                 <item.icon className="h-4 w-4" />
                 {item.title}
-                {item.title === "Jobs" && runningJobs > 0 && (
-                  <Badge variant="default" className="ml-auto h-5 px-1.5 text-xs">
-                    {runningJobs}
-                  </Badge>
-                )}
               </Button>
             </Link>
           );
