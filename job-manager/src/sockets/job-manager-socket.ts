@@ -64,6 +64,9 @@ const registerJobSocket = (io: Server) => {
 
     // job cancel : event sent from user
     socket.on("job:cancel", ({ jobId }: JobCancelPayload) => {
+      console.log("job:cancel", jobId);
+      console.log(workerSocket[C.WORKER_ID]);
+
       workerSocket[C.WORKER_ID].emit("job:cancel", { jobId });
     });
 

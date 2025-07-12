@@ -21,7 +21,14 @@ export const createJob = async (
       },
     });
 
-    axios.get(`${process.env.JOB_WORKER_URL}/wake-up`);
+    axios
+      .get(`${process.env.JOB_WORKER_URL}/wake-up`)
+      .then((res) => {
+        console.log("wake-up", res.data);
+      })
+      .catch((err) => {
+        console.log("error", err);
+      });
 
     res.status(201).json({
       success: true,

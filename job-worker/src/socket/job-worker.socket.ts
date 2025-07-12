@@ -17,6 +17,7 @@ webSocket.on("connect", () => {
 
 webSocket.on("job:cancel", async ({ jobId, workerId }: JobCancelPayload) => {
   await cancelProcess(jobId);
+  console.log("job:canceled", jobId);
   webSocket.emit("job:canceled", { jobId, workerId, success: true });
 });
 

@@ -27,6 +27,7 @@ import { getJobById } from "@/hooks/queries"
 import { DefaultLoader } from "@/components/shared/wrapper"
 import { useSocket } from "@/provider/socket-provider"
 import withAuth from "@/provider/auth-provider"
+import { STATUS } from "@/constants"
 
 function getStatusBadge(status: Job["status"]) {
   const variants = {
@@ -82,7 +83,7 @@ const page = () => {
   const socket = useSocket()
 
   const { id } = useParams()
-  const { data: job, isLoading, isError } = getJobById(id as string)
+  const { data: job, isLoading } = getJobById(id as string)
 
   // Auto-scroll to bottom when new output is added
   useEffect(() => {
@@ -97,14 +98,24 @@ const page = () => {
   }, [outputLogs])
 
   const handleCancelJob = () => {
-    console.log("Canceling job:", job?.id)
-    // TODO: Implement WebSocket job cancellation
+    if (!job?.id || !socket?.connected) return
+    socket.emit("job:cancel", { jobId: job.id })
+    setImplicitStatus(STATUS.CANCELED)
+    setOutputLogs((prev) => [
+      ...prev,
+      {
+        success: false,
+        response: "Job canceled",
+        timestamp: new Date().toISOString(),
+      },
+    ])
   }
 
   useEffect(() => {
     if (!job?.id || !socket?.connected) return
-    if (job.status !== "PENDING") return
+    if (job.status !== STATUS.PENDING) return
     socket.emit("job:subscribe", { jobId: job.id, priority: job.priority })
+    setImplicitStatus(STATUS.RUNNING)
 
     const handleUpdate = (data: JobStreamResponse) => {
       if (data.jobId === job.id) {
@@ -116,7 +127,7 @@ const page = () => {
 
     const handleDone = (data: JobStreamResponse) => {
       if (data.jobId === job.id) {
-        setImplicitStatus(data.exitCode === 0 ? "SUCCESS" : "FAILED")
+        setImplicitStatus(data.exitCode === 0 ? STATUS.SUCCESS : STATUS.FAILED)
         const lastLog = {
           success: data.exitCode === 0,
           response:
@@ -148,6 +159,8 @@ const page = () => {
         Job not found
       </div>
     )
+
+  const showStreamingOutput = job.status === STATUS.PENDING && isStreaming
 
   return (
     <div className="space-y-6 p-6">
@@ -291,16 +304,15 @@ const page = () => {
         <CardContent className="p-0">
           <ScrollArea className="h-[500px] w-full" ref={scrollAreaRef}>
             <div className="bg-secondary p-4 font-mono text-sm">
-              {job.output.length === 0 && implicitStatus !== "PENDING" ? (
-                <div className="text-gray-700">Waiting for output...</div>
+              {job.output.length === 0 && implicitStatus !== STATUS.PENDING ? (
+                <div className="text-gray-700">No Output logs yet...</div>
               ) : (
                 job.output.map((log, index) => (
                   <OutputLog log={log} index={index} />
                 ))
               )}
-              {implicitStatus === "PENDING" && <JobRunningStatus />}
-              {job.status === "PENDING" &&
-                isStreaming &&
+              {implicitStatus === STATUS.RUNNING && <JobRunningStatus />}
+              {showStreamingOutput &&
                 outputLogs.map((log, index) => (
                   <OutputLog log={log} index={index} />
                 ))}
@@ -310,7 +322,7 @@ const page = () => {
       </Card>
 
       {/* Control Panel */}
-      {job.status === "RUNNING" && (
+      {implicitStatus === STATUS.RUNNING && (
         <JobCancel handleCancelJob={handleCancelJob} />
       )}
     </div>
@@ -329,7 +341,7 @@ function JobCancel({ handleCancelJob }: { handleCancelJob: () => void }) {
           variant="destructive"
           size="sm"
           onClick={handleCancelJob}
-          className="gap-2"
+          className="gap-2 cursor-pointer"
         >
           <X className="h-4 w-4" />
           Cancel Job

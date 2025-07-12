@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import prisma from "@src/config/db";
 import { enqueueJob } from "@src/libs/priority-queue";
+import { RunningProcess } from "@src/libs/running-process";
 import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
 import { constants as C } from "@src/utils/constants";
 import { getBackoffDelay, killTimeout, terminateOnRaceCondition } from "@src/utils/helper";
@@ -34,7 +35,7 @@ const processJob = async (jobId: string) => {
   console.log(`🚀 Starting job ${jobId}: ${command}`);
 
   const proc = spawn("bash", [filePath, ...(job.params || [])]);
-
+  RunningProcess[jobId] = proc;
   // Kill timeout and race condition on job timeout
   killTimeout(proc, jobId, job, workerSocket);
   terminateOnRaceCondition(proc, jobId, workerSocket);
