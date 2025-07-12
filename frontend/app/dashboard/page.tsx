@@ -1,14 +1,26 @@
-"use client";
+"use client"
 
-import { StatsCardPendingView } from "@/components/shared/skeleton";
-import QueryWrapper from "@/components/shared/wrapper";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { useGetJobs } from "@/hooks/queries";
-import { calculateJobStats, extractJobGraphs } from "@/lib/utils";
-import { CheckCircle, Circle, Clock, Terminal, TrendingUp, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { StatsCardPendingView } from "@/components/shared/skeleton"
+import QueryWrapper from "@/components/shared/wrapper"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import { useGetJobs } from "@/hooks/queries"
+import { calculateJobStats, extractJobGraphs } from "@/lib/utils"
+import withAuth from "@/provider/auth-provider"
+import {
+  CheckCircle,
+  Circle,
+  Clock,
+  Terminal,
+  TrendingUp,
+  XCircle,
+} from "lucide-react"
+import { useEffect, useState } from "react"
 import {
   Bar,
   BarChart,
@@ -18,18 +30,18 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-} from "recharts";
+} from "recharts"
 
-export default function DashboardPage() {
-  const { data: jobs, isError, isPending, error } = useGetJobs();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const stats = calculateJobStats(jobs || []);
-  const graphs = extractJobGraphs(jobs || []);
+const page = () => {
+  const { data: jobs, isError, isPending, error } = useGetJobs()
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const stats = calculateJobStats(jobs || [])
+  const graphs = extractJobGraphs(jobs || [])
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -63,47 +75,66 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Jobs
+                  </CardTitle>
                   <Terminal className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.totalJobs}</div>
                   <p className="text-xs text-muted-foreground">
-                    <TrendingUp className="inline h-3 w-3" /> +12% from last month
+                    <TrendingUp className="inline h-3 w-3" /> +12% from last
+                    month
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Successful Jobs</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Successful Jobs
+                  </CardTitle>
                   <CheckCircle className="h-4 w-4 text-green-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.successfulJobs}</div>
-                  <p className="text-xs text-muted-foreground">{stats.successRate}% success rate</p>
+                  <div className="text-2xl font-bold">
+                    {stats.successfulJobs}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.successRate}% success rate
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Failed Jobs</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Failed Jobs
+                  </CardTitle>
                   <XCircle className="h-4 w-4 text-red-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.failedJobs}</div>
-                  <p className="text-xs text-muted-foreground">{stats.failureRate}% failure rate</p>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.failureRate}% failure rate
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Execution Time</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Avg Execution Time
+                  </CardTitle>
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.avgExecutionTimeSec}s</div>
-                  <p className="text-xs text-muted-foreground">-2.1s from last week</p>
+                  <div className="text-2xl font-bold">
+                    {stats.avgExecutionTimeSec}s
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    -2.1s from last week
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -133,7 +164,12 @@ export default function DashboardPage() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line type="monotone" dataKey="jobs" stroke="var(--color-jobs)" strokeWidth={2} />
+                  <Line
+                    type="monotone"
+                    dataKey="jobs"
+                    stroke="var(--color-jobs)"
+                    strokeWidth={2}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -173,5 +209,7 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
+
+export default withAuth(page)

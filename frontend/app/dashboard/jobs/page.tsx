@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState } from "react"
+import Link from "next/link"
+import { format } from "date-fns"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 import {
   CheckCircle,
   Clock,
@@ -25,42 +25,72 @@ import {
   Search,
   Terminal,
   XCircle,
-} from "lucide-react";
-import { useGetJobs } from "@/hooks/queries";
-import QueryWrapper from "@/components/shared/wrapper";
-import { JobCardPendingView, StatsCardPendingView } from "@/components/shared/skeleton";
-import { Job } from "@/hooks/data-type";
+} from "lucide-react"
+import { useGetJobs } from "@/hooks/queries"
+import QueryWrapper from "@/components/shared/wrapper"
+import {
+  JobCardPendingView,
+  StatsCardPendingView,
+} from "@/components/shared/skeleton"
+import { Job } from "@/hooks/data-type"
+import withAuth from "@/provider/auth-provider"
 
 function getStatusBadge(status: Job["status"]) {
   const variants = {
-    PENDING: { variant: "secondary" as const, icon: Clock, color: "text-gray-500" },
-    RUNNING: { variant: "default" as const, icon: Loader2, color: "text-yellow-500" },
-    SUCCESS: { variant: "default" as const, icon: CheckCircle, color: "text-green-500" },
-    FAILED: { variant: "destructive" as const, icon: XCircle, color: "text-red-500" },
-    CANCELED: { variant: "outline" as const, icon: XCircle, color: "text-slate-500" },
-  };
+    PENDING: {
+      variant: "secondary" as const,
+      icon: Clock,
+      color: "text-gray-500",
+    },
+    RUNNING: {
+      variant: "default" as const,
+      icon: Loader2,
+      color: "text-yellow-500",
+    },
+    SUCCESS: {
+      variant: "default" as const,
+      icon: CheckCircle,
+      color: "text-green-500",
+    },
+    FAILED: {
+      variant: "destructive" as const,
+      icon: XCircle,
+      color: "text-red-500",
+    },
+    CANCELED: {
+      variant: "outline" as const,
+      icon: XCircle,
+      color: "text-slate-500",
+    },
+  }
 
-  const config = variants[status as keyof typeof variants];
-  const Icon = config.icon;
+  const config = variants[status as keyof typeof variants]
+  const Icon = config.icon
 
   return (
     <Badge variant={config.variant} className="flex items-center gap-1">
-      <Icon className={`h-3 w-3 ${config.color} ${status === "RUNNING" ? "animate-spin" : ""}`} />
+      <Icon
+        className={`h-3 w-3 ${config.color} ${
+          status === "RUNNING" ? "animate-spin" : ""
+        }`}
+      />
       {status}
     </Badge>
-  );
+  )
 }
 
-export default function JobsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const { data: jobs, isError, isPending, error } = useGetJobs();
+const page = () => {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const { data: jobs, isError, isPending, error } = useGetJobs()
 
   const filteredJobs = jobs?.filter((job) => {
-    const matchesSearch = job.command.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+    const matchesSearch = job.command
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <div className="space-y-6 p-6">
@@ -68,7 +98,9 @@ export default function JobsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Jobs</h1>
-          <p className="text-muted-foreground">Manage and monitor your job executions</p>
+          <p className="text-muted-foreground">
+            Manage and monitor your job executions
+          </p>
         </div>
         <Link href="/dashboard/create-job">
           <Button className="gap-2">
@@ -114,12 +146,17 @@ export default function JobsPage() {
           <div className="grid gap-4">
             {filteredJobs &&
               filteredJobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={job.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Terminal className="h-4 w-4" />
-                        <span className="font-mono text-sm truncate max-w-md">{job.command}</span>
+                        <span className="font-mono text-sm truncate max-w-md">
+                          {job.command}
+                        </span>
                       </CardTitle>
                       <div className="flex items-center gap-2">
                         {getStatusBadge(job.status as Job["status"])}
@@ -182,5 +219,7 @@ export default function JobsPage() {
         </Card>
       )}
     </div>
-  );
+  )
 }
+
+export default withAuth(page)

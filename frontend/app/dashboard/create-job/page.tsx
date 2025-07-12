@@ -21,6 +21,7 @@ import { useCreateJob } from "@/hooks/mutation"
 import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/utils"
 import { useSocket } from "@/provider/socket-provider"
+import withAuth from "@/provider/auth-provider"
 
 const page = () => {
   const router = useRouter()
@@ -261,4 +262,4 @@ function ScriptParamsInput({
   )
 }
 
-export default page
+export default withAuth(page)

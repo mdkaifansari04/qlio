@@ -26,6 +26,7 @@ import { useParams } from "next/navigation"
 import { getJobById } from "@/hooks/queries"
 import { DefaultLoader } from "@/components/shared/wrapper"
 import { useSocket } from "@/provider/socket-provider"
+import withAuth from "@/provider/auth-provider"
 
 function getStatusBadge(status: Job["status"]) {
   const variants = {
@@ -71,7 +72,7 @@ function formatTimestamp(timestamp: string) {
   return format(new Date(timestamp), "dd MMM HH:mm:ss")
 }
 
-export default function JobDetailPage() {
+const page = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const [outputLogs, setOutputLogs] = useState<JobResponse[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
@@ -365,3 +366,5 @@ function JobRunningStatus() {
     </div>
   )
 }
+
+export default withAuth(page)

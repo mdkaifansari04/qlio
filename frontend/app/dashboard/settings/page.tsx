@@ -1,36 +1,37 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 // import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "next-themes";
-import { Moon, Sun, User, Lock, Bell, Shield, Save } from "lucide-react";
+import { useTheme } from "next-themes"
+import { Moon, Sun, User, Lock, Bell, Shield, Save } from "lucide-react"
+import withAuth from "@/provider/auth-provider"
 
-export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
+const SettingsPage = () => {
+  const { theme, setTheme } = useTheme()
   //   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const [profile, setProfile] = useState({
     name: "Alex Johnson",
     email: "alex@company.com",
-  });
+  })
 
   const [notifications, setNotifications] = useState({
     jobComplete: true,
     jobFailed: true,
     systemAlerts: false,
-  });
+  })
 
   const handleSaveProfile = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       // TODO: Replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       /* toast({
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
@@ -42,14 +43,14 @@ export default function SettingsPage() {
         variant: "destructive",
       }); */
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSaveNotifications = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       /* toast({
         title: "Notifications Updated",
         description: "Your notification preferences have been saved.",
@@ -61,16 +62,18 @@ export default function SettingsPage() {
         variant: "destructive",
       }); */
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account settings and preferences</p>
+        <p className="text-muted-foreground">
+          Manage your account settings and preferences
+        </p>
       </div>
 
       <div className="grid gap-6 max-w-4xl">
@@ -78,7 +81,11 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {theme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              {theme === "dark" ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
               Appearance
             </CardTitle>
           </CardHeader>
@@ -92,7 +99,9 @@ export default function SettingsPage() {
               </div>
               <Switch
                 checked={theme === "dark"}
-                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                onCheckedChange={(checked) =>
+                  setTheme(checked ? "dark" : "light")
+                }
               />
             </div>
           </CardContent>
@@ -113,7 +122,9 @@ export default function SettingsPage() {
                 <Input
                   id="name"
                   value={profile.name}
-                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  onChange={(e) =>
+                    setProfile({ ...profile, name: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -122,11 +133,17 @@ export default function SettingsPage() {
                   id="email"
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                  onChange={(e) =>
+                    setProfile({ ...profile, email: e.target.value })
+                  }
                 />
               </div>
             </div>
-            <Button onClick={handleSaveProfile} disabled={isLoading} className="gap-2">
+            <Button
+              onClick={handleSaveProfile}
+              disabled={isLoading}
+              className="gap-2"
+            >
               <Save className="h-4 w-4" />
               {isLoading ? "Saving..." : "Save Profile"}
             </Button>
@@ -209,13 +226,20 @@ export default function SettingsPage() {
                 <Switch
                   checked={notifications.systemAlerts}
                   onCheckedChange={(checked) =>
-                    setNotifications({ ...notifications, systemAlerts: checked })
+                    setNotifications({
+                      ...notifications,
+                      systemAlerts: checked,
+                    })
                   }
                 />
               </div>
             </div>
 
-            <Button onClick={handleSaveNotifications} disabled={isLoading} className="gap-2">
+            <Button
+              onClick={handleSaveNotifications}
+              disabled={isLoading}
+              className="gap-2"
+            >
               <Save className="h-4 w-4" />
               {isLoading ? "Saving..." : "Save Notifications"}
             </Button>
@@ -223,5 +247,6 @@ export default function SettingsPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
+export default withAuth(SettingsPage)
