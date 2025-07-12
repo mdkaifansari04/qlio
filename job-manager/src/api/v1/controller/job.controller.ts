@@ -2,6 +2,7 @@ import { CustomRequest } from "@src/types";
 import client from "@src/config/db";
 import { NextFunction, Response } from "express";
 import ErrorResponse from "@src/middleware/error-response";
+import axios from "axios";
 
 export const createJob = async (
   req: CustomRequest,
@@ -19,6 +20,8 @@ export const createJob = async (
         params,
       },
     });
+
+    axios.get(`${process.env.JOB_WORKER_URL}/wake-up`);
 
     res.status(201).json({
       success: true,

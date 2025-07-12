@@ -1,6 +1,6 @@
-import Joi, { string } from "joi";
-import { NextFunction, Request, Response } from "express";
 import { CustomRequest } from "@src/types";
+import { NextFunction, Response } from "express";
+import Joi from "joi";
 import { validateSchema } from "./schema-validation";
 
 export const createJobValidation = (
