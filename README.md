@@ -1,5 +1,3 @@
-**Qlio — Asynchronous Script Execution Engine**
-
 # ⚙️ Qlio — Asynchronous Script Execution Engine
 
 Qlio is a scalable, full-stack system for executing shell commands asynchronously on a **remote job runner** with real-time logs, priority queues, retry handling, and concurrency support — inspired by tools like **BullMQ**, **Sidekiq**, and frontend UX inspired by **Render.com**.
@@ -38,7 +36,11 @@ Qlio is a scalable, full-stack system for executing shell commands asynchronousl
 
 ## 🧱 Architecture Overview
 
-![Architecture Diagram](.github/image/architecture.png)
+<p align="center">
+  <img src=".github/image/architecture.png" alt="Architecture Diagram" width="700"/>
+  <br/>
+  <em>Qlio system architecture — manager, queue, worker, and real-time feedback loop.</em>
+</p>
 
 - Redis: shared queue between manager & worker
 - Postgres: job persistence
@@ -63,12 +65,9 @@ Qlio is a scalable, full-stack system for executing shell commands asynchronousl
 
 ```
 qlio/
-├── apps/
 │   ├── frontend/       # Next.js client
 │   ├── job-manager/    # API + queue handler
 │   └── job-worker/     # Job execution engine
-└── packages/
-    └── db/             # Prisma schema (shared)
 ```
 
 ---
@@ -138,25 +137,28 @@ pnpm dev
 
 ## 🧪 Scripts
 
-### Frontend
+### Start Frontend Sever
 
-```json
-"scripts": {
-  "dev": "next dev --turbopack",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint"
-}
+```bash
+    cd frontend
+    npm install
+    npm run dev
 ```
 
-### Job Manager & Worker
+### Job Manager Server
 
-```json
-"scripts": {
-  "start": "tsc -b && tsc-alias && node dist/index.js",
-  "dev": "nodemon",
-  "build": "tsc -b"
-}
+```bash
+    cd job-manager
+    pnpm install
+    pnpm run dev
+```
+
+### Job Worker Server
+
+```bash
+    cd job-worker
+    pnpm install
+    pnpm run dev
 ```
 
 ---
@@ -175,12 +177,6 @@ pnpm dev
 
 ---
 
-## 📸 Screenshots
-
-> Add GIFs of job logs streaming, job cards updating in real-time, cancel button, etc.
-
----
-
 ## 🌐 Live URLs
 
 - **Frontend**: [qlio-one.vercel.app](https://qlio-one.vercel.app)
@@ -191,9 +187,6 @@ pnpm dev
 
 ## 📅 Future Improvements
 
-- [ ] Dashboard to visualize queue + workers
-- [ ] Multi-queue support
-- [ ] Script file uploads
 - [ ] Docker & CI/CD setup
 - [ ] CLI interface
 
