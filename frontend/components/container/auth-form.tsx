@@ -1,5 +1,5 @@
-"use client";
-import { Button } from "@/components/ui/button";
+"use client"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -8,76 +8,79 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useLogin, useSignUp } from "@/hooks/mutation";
-import { useToast } from "@/hooks/use-toast";
-import { accessTokenStorage } from "@/lib/token-storage";
-import { getErrorMessage } from "@/lib/utils";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useLogin, useSignUp } from "@/hooks/mutation"
+import { useToast } from "@/hooks/use-toast"
+import { accessTokenStorage } from "@/lib/token-storage"
+import { getErrorMessage } from "@/lib/utils"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 function AuthForm({ type }: { type: "login" | "signup" }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     name: "",
-  });
+  })
 
-  const { mutate: signUp, isPending: isSignUpPending } = useSignUp();
-  const { mutate: login, isPending: isLoginPending } = useLogin();
-  const router = useRouter();
-  const { toast } = useToast();
+  const { mutate: signUp, isPending: isSignUpPending } = useSignUp()
+  const { mutate: login, isPending: isLoginPending } = useLogin()
+  const router = useRouter()
+  const { toast } = useToast()
 
   const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+    e.preventDefault()
     login(
       { email: formData.email, password: formData.password },
       {
         onSuccess: (data) => {
-          accessTokenStorage.set(data);
-          router.push("/dashboard");
+          accessTokenStorage.set(data)
+          localStorage.setItem("user", data)
+          router.push("/dashboard")
         },
         onError: (error) => {
           toast({
             title: "Login failed",
             description: getErrorMessage(error),
             variant: "destructive",
-          });
+          })
         },
       }
-    );
-  };
+    )
+  }
 
   const handleSignup = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
     signUp(formData, {
       onSuccess: () => {
-        router.push("/login");
+        router.push("/login")
         toast({
           title: "Sign up successful",
           description: "Please login to your account",
           variant: "default",
-        });
+        })
       },
       onError: (error) => {
         toast({
           title: "Sign up failed",
           description: getErrorMessage(error),
           variant: "destructive",
-        });
+        })
       },
-    });
-  };
+    })
+  }
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>
-          {type === "login" ? "Login to your account" : "Sign up to your account"}
+          {type === "login"
+            ? "Login to your account"
+            : "Sign up to your account"}
         </CardTitle>
         <CardDescription>
           {type === "login"
@@ -86,7 +89,9 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
         </CardDescription>
         <CardAction>
           <Link href={type === "login" ? "/sign-up" : "/login"}>
-            <Button variant="link">{type === "login" ? "Sign up" : "Login"}</Button>
+            <Button variant="link">
+              {type === "login" ? "Sign up" : "Login"}
+            </Button>
           </Link>
         </CardAction>
       </CardHeader>
@@ -102,7 +107,9 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
                   placeholder="John Doe"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                 />
               </div>
             )}
@@ -114,7 +121,9 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
                 placeholder="m@example.com"
                 required
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
             <div className="grid gap-2">
@@ -126,7 +135,9 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
                 type="password"
                 required
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
             </div>
           </div>
@@ -148,7 +159,7 @@ function AuthForm({ type }: { type: "login" | "signup" }) {
         </Button>
       </CardFooter>
     </Card>
-  );
+  )
 }
 
-export default AuthForm;
+export default AuthForm
