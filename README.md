@@ -37,7 +37,7 @@ Qlio is a scalable, full-stack system for executing shell commands asynchronousl
 ## 🧱 Architecture Overview
 
 <p align="center">
-  <img src=".github/image/architecture.png" alt="Architecture Diagram" width="700"/>
+  <img src=".github/images/architecture.png" alt="Architecture Diagram" width="700"/>
   <br/>
   <em>Qlio system architecture — manager, queue, worker, and real-time feedback loop.</em>
 </p>
