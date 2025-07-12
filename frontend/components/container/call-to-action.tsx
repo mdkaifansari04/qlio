@@ -21,7 +21,7 @@ export default function CallToAction() {
               impression on potential employers or clients.
             </p>
           </div>
-          <Link href="/dashboard/jobs/create-job">
+          <Link href="/dashboard/create-job">
             <Button className="gap-2 sm:gap-4 w-full md:w-auto min-w-[200px]">
               Get Started <MoveRight className="w-4 h-4" />
             </Button>

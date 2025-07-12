@@ -1,35 +1,38 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import React, { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 interface Feature {
-  step: string;
-  title?: string;
-  content: string;
-  image: string;
+  step: string
+  title?: string
+  content: string
+  image: string
 }
 
 interface FeatureStepsProps {
-  features: Feature[];
-  className?: string;
-  title?: string;
-  autoPlayInterval?: number;
-  imageHeight?: string;
+  features: Feature[]
+  className?: string
+  title?: string
+  autoPlayInterval?: number
+  imageHeight?: string
 }
 
-export function FeatureSteps({ features, autoPlayInterval = 3000 }: FeatureStepsProps) {
-  const [currentFeature, setCurrentFeature] = useState(0);
+export function FeatureSteps({
+  features,
+  autoPlayInterval = 3000,
+}: FeatureStepsProps) {
+  const [currentFeature, setCurrentFeature] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % features.length);
-    }, autoPlayInterval);
+      setCurrentFeature((prev) => (prev + 1) % features.length)
+    }, autoPlayInterval)
 
-    return () => clearInterval(interval);
-  }, [autoPlayInterval, features.length]);
+    return () => clearInterval(interval)
+  }, [autoPlayInterval, features.length])
 
   return (
     <div className="flex flex-col gap-8 max-w-5xl mx-auto px-4 sm:px-6">
@@ -48,9 +51,9 @@ export function FeatureSteps({ features, autoPlayInterval = 3000 }: FeatureSteps
                   <Image
                     src={feature.image}
                     alt={feature.step}
-                    className="w-full h-full object-cover transition-transform transform"
+                    className="w-full h-full object-contain transition-transform transform"
                     width={500}
-                    height={500}
+                    height={550}
                     priority={index === 0}
                   />
                 </motion.div>
@@ -83,13 +86,17 @@ export function FeatureSteps({ features, autoPlayInterval = 3000 }: FeatureSteps
                 {feature.step}
               </span>
               <div>
-                <h3 className="text-base font-medium mb-1 dark:text-white">{feature.title}</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">{feature.content}</p>
+                <h3 className="text-base font-medium mb-1 dark:text-white">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {feature.content}
+                </p>
               </div>
             </div>
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }

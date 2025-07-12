@@ -81,7 +81,7 @@ const Home = () => {
       <BlurFade delay={0.5} offset={30} inView={true} inViewMargin="0px">
         <section className="px-4 sm:px-0">
           <h1 className="font-medium font-eb-garamond text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-tight tracking-tight text-neutral-900 dark:text-white text-center mb-8">
-            Create a Portfolio in{" "}
+            Create a Job in{" "}
             <span className="underline underline-offset-8 decoration-blue-500">
               Minutes
             </span>{" "}
