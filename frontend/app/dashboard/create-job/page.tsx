@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/utils"
 import { useSocket } from "@/provider/socket-provider"
 
-export default function CreateJobPage() {
+const page = () => {
   const router = useRouter()
   const { toast } = useToast()
   const { mutate: createJobMutation, isPending: isSubmitting } = useCreateJob()
@@ -214,7 +214,7 @@ export default function CreateJobPage() {
   )
 }
 
-export function ScriptParamsInput({
+function ScriptParamsInput({
   onChange,
 }: {
   onChange: (params: string[]) => void
@@ -260,3 +260,5 @@ export function ScriptParamsInput({
     </div>
   )
 }
+
+export default page
