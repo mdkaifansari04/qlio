@@ -8,6 +8,12 @@ const PORT = process.env.PORT || 8081;
 app.get("/", (req: Request, res: Response) => {
   res.send("Job Worker is running 🚀");
 });
+
+app.get("/wake-up", (req: Request, res: Response) => {
+  startJobQueueLoop();
+  res.status(200).json({ success: true, message: "Job Worker is running 🚀" });
+});
+
 import { startJobQueueLoop } from "./worker/job-queue-loop";
 import { pushPendingJobToRetry, startRetryLoop } from "./worker/retry-loop";
 
