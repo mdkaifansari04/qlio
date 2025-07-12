@@ -1,4 +1,4 @@
-import { cancelProcess } from "@src/libs/running-process";
+import { cancelProcess } from "@src/libs/process-action";
 import { JobCancelPayload } from "@src/types";
 import { constants as C } from "@src/utils/constants";
 

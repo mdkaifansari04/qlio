@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import prisma from "@src/config/db";
 import { enqueueJob } from "@src/libs/priority-queue";
-import { RunningProcess } from "@src/libs/running-process";
+import { RunningProcess } from "@src/libs/process-action";
 import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
 import { constants as C } from "@src/utils/constants";
 import { getBackoffDelay, killTimeout, terminateOnRaceCondition } from "@src/utils/helper";

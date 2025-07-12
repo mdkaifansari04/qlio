@@ -6,11 +6,11 @@ export const cancelProcess = async (jobId: string) => {
   const process = RunningProcess[jobId];
 
   if (process) {
-    delete RunningProcess[jobId];
+    process.kill("SIGTERM");
     await prisma.job.update({
       where: { id: jobId },
       data: { status: "CANCELED" },
     });
-    process.kill("SIGTERM");
+    delete RunningProcess[jobId];
   }
 };
