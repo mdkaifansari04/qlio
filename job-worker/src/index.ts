@@ -1,6 +1,13 @@
 import { config } from "dotenv";
 config();
+import express, { Request, Response } from "express";
 
+const app = express();
+const PORT = process.env.PORT || 8081;
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Job Worker is running 🚀");
+});
 import { startJobQueueLoop } from "./worker/job-queue-loop";
 import { pushPendingJobToRetry, startRetryLoop } from "./worker/retry-loop";
 
@@ -21,3 +28,7 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+app.listen(PORT, () => {
+  console.log(`[Worker] Listening on port ${PORT}`);
+});
