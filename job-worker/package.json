@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc -b && node dist/index.js",
+    "start": "tsc -b && tsc-alias && node dist/index.js",
     "dev": "nodemon",
     "build": "tsc -b"
   },
@@ -20,6 +20,7 @@
     "prisma": "^6.11.1",
     "socket.io-client": "^4.8.1",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   },
