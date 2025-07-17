@@ -10,7 +10,7 @@ export const createJob = async (
   next: NextFunction,
 ) => {
   try {
-    const { command, timeout, priority, params } = req.value;
+    const { command, timeout, priority, params, isKillable } = req.value;
     const job = await client.job.create({
       data: {
         command: command as string,
@@ -18,17 +18,20 @@ export const createJob = async (
         timeout,
         priority,
         params,
+        isKillable,
       },
     });
 
-    axios
-      .get(`${process.env.JOB_WORKER_URL}/wake-up`)
-      .then((res) => {
-        console.log("wake-up", res.data);
-      })
-      .catch((err) => {
-        console.log("error", err);
-      });
+    if (process.env.NODE_ENV === "production") {
+      axios
+        .get(`${process.env.JOB_WORKER_URL}/wake-up`)
+        .then((res) => {
+          console.log("wake-up", res.data);
+        })
+        .catch((err) => {
+          console.log("error", err);
+        });
+    }
 
     res.status(201).json({
       success: true,

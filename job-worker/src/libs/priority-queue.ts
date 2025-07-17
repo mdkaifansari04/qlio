@@ -8,6 +8,8 @@ export const PRIORITY_KEYS = Object.fromEntries(
   PRIORITY_LEVELS.map((level) => [level, `priority:${level}`])
 );
 
+// {1: "priority:1", 2: "priority:2", 3: "priority:3"}
+
 export const enqueueJob = async (job: Job, queueKey: string = constants.JOB_QUEUE_KEY) => {
   const key = PRIORITY_KEYS[job.priority as 1 | 2 | 3] || PRIORITY_KEYS[3];
   await redisClient.lpush(`${queueKey}:${key}`, job.id);

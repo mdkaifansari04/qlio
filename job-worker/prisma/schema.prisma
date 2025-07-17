@@ -35,6 +35,7 @@ model Job {
   duration    Int?
   memoryUsage Int?
   workerId    String?
+  isKillable  Boolean   @default(false)
   User        User      @relation(fields: [userId], references: [id])
 }
 

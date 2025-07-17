@@ -14,4 +14,5 @@ export interface JobPayload {
   priority: number
   timeout: number
   params?: string[]
+  isKillable?: boolean
 }

@@ -13,6 +13,7 @@ export const createJobValidation = (
     timeout: Joi.number().required(),
     priority: Joi.number().required(),
     params: Joi.array().items(Joi.string().optional().allow("")).optional(),
+    isKillable: Joi.boolean().optional(),
   });
 
   validateSchema({ schema, req, next });

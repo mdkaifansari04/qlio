@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/utils"
 import { useSocket } from "@/provider/socket-provider"
 import withAuth from "@/provider/auth-provider"
+import { Switch } from "@/components/ui/switch"
 
 const page = () => {
   const router = useRouter()
@@ -33,6 +34,7 @@ const page = () => {
     priority: 3,
     timeout: 300000,
     params: [""],
+    isKillable: true,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +46,7 @@ const page = () => {
         priority: Number(formData.priority),
         timeout: Number(formData.timeout),
         params: formData.params,
+        isKillable: formData.isKillable,
       },
       {
         onSuccess: (data) => {
@@ -71,6 +74,10 @@ const page = () => {
 
   const handleParamsChange = (params: string[]) => {
     setFormData((prev) => ({ ...prev, params }))
+  }
+
+  const handleKillableChange = (value: boolean) => {
+    setFormData((prev) => ({ ...prev, isKillable: value }))
   }
 
   return (
@@ -178,6 +185,16 @@ const page = () => {
                     {formData.timeout / 1000}s
                   </div>
                 </div>
+              </div>
+
+              {/* Killable */}
+              <div className="space-y-2">
+                <Label htmlFor="isKillable">Killable</Label>
+                <Switch
+                  id="isKillable"
+                  checked={formData.isKillable}
+                  onCheckedChange={handleKillableChange}
+                />
               </div>
 
               {/* Submit */}

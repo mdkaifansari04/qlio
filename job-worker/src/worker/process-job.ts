@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import prisma from "@src/config/db";
+import prisma from "../config/db";
 import { enqueueJob } from "@src/libs/priority-queue";
 import { RunningProcess } from "@src/libs/process-action";
 import { webSocket as workerSocket } from "@src/socket/job-worker.socket";
@@ -15,18 +15,35 @@ let usageStats = {
   memory: 0,
 };
 
-const processJob = async (jobId: string) => {
-  const job = await prisma.job.findFirst({ where: { id: jobId } });
-
-  if (!job || job.status !== "PENDING") {
-    console.log("❌ Skipping job, already executed or not found");
+const processJob = async (jobId: string): Promise<boolean | undefined> => {
+  const updatedJob = await prisma.job.updateMany({
+    where: {
+      id: jobId,
+      status: "PENDING", // Only update if status is PENDING
+    },
+    data: {
+      status: "RUNNING",
+      startedAt: new Date(),
+    },
+  });
+  console.log("updatedJob", updatedJob.count);
+  // If no rows were updated, job was already taken by another worker
+  if (updatedJob.count === 0) {
+    console.log("❌ Skipping job, already taken by another worker");
     workerSocket.emit("job:done", {
       jobId,
       exitCode: 0,
     });
-    return;
+    return false;
   }
+  // if (updatedJob.count == 1) return true;
 
+  const job = await prisma.job.findUnique({ where: { id: jobId } });
+
+  if (!job) {
+    console.error("⚠️ Job not found after locking. Something’s wrong.");
+    return false;
+  }
   const output = job.output as Prisma.JsonArray;
   const { command } = job;
   const filePath = path.join(`/tmp`, `job-${jobId}.sh`);
@@ -39,15 +56,6 @@ const processJob = async (jobId: string) => {
   // Kill timeout and race condition on job timeout
   killTimeout(proc, jobId, job, workerSocket);
   terminateOnRaceCondition(proc, jobId, workerSocket);
-
-  const startedAt = new Date();
-  await prisma.job.update({
-    where: { id: jobId },
-    data: {
-      status: "RUNNING",
-      startedAt,
-    },
-  });
 
   // Stream stdout
   proc.stdout.on("data", async (data) => {
@@ -157,6 +165,8 @@ const processJob = async (jobId: string) => {
     console.error(`❌ Job ${jobId} process failed:`, err);
     fs.unlink(filePath, () => {});
   });
+
+  if (updatedJob.count == 1) return true;
 };
 
 export default processJob;
